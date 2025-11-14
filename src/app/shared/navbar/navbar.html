@@ -1,0 +1,62 @@
+<header
+  class="site-header navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm"
+  role="navigation"
+  aria-label="Barra principal"
+>
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold" routerLink="/">🎲 Cuatro Esquinas</a>
+
+    <!-- Toggle móvil -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Abrir o cerrar menú"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menú -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/">Inicio</a>
+        </li>
+
+        <!-- Categorías dinámicas -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            id="categoriasDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Categorías
+          </a>
+
+          <ul class="dropdown-menu" aria-labelledby="categoriasDropdown">
+            <li><a class="dropdown-item" routerLink="/categoria/estrategia">Estrategia</a></li>
+            <li><a class="dropdown-item" routerLink="/categoria/infantiles">Infantiles</a></li>
+            <li><a class="dropdown-item" routerLink="/categoria/amigos">Amigos</a></li>
+            <li><a class="dropdown-item" routerLink="/categoria/cartas">Cartas</a></li>
+          </ul>
+        </li>
+
+        <!-- Páginas básicas permitidas -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/registro">Regístrate</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/login">Iniciar sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
