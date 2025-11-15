@@ -1,14 +1,8 @@
 <section class="hero bg-white text-center">
   <div class="container">
+    <h1 class="hero-title">Juegos de Mesa Cuatro Esquinas</h1>
 
-    <h1 class="hero-title">
-      Juegos de Mesa Cuatro Esquinas
-    </h1>
-
-    <h2 class="hero-subtitle">
-      Descubre diversión sin límites para toda la familia
-    </h2>
-
+    <h2 class="hero-subtitle">Descubre diversión sin límites para toda la familia</h2>
   </div>
 </section>
 
@@ -18,18 +12,17 @@
   <div class="row g-4 justify-content-center">
     @for (c of categorias; track c) {
     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-      <div class="card-categoria">
+      <a [routerLink]="['/categorias', c.slug]" class="categoria-link">
+        <div class="card-categoria h-100">
+          <img [src]="c.imagen" [alt]="c.nombre" loading="lazy" />
 
-        <img [src]="c.imagen" [alt]="c.nombre" loading="eager" />
-
-        <div class="card-body text-center">
-          <a [routerLink]="['/categorias', c.slug]" class="categoria-name text-decoration-none">
-            {{ c.nombre }}
-          </a>
+          <div class="card-body text-center">
+            <span class="categoria-name">{{ c.nombre }}</span>
+          </div>
         </div>
-
-      </div>
+      </a>
     </div>
+
     }
   </div>
 </section>
