@@ -1,54 +1,45 @@
-<header
-  class="site-header navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm"
-  role="navigation"
-  aria-label="Barra principal"
->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
-    <!-- Logo -->
-    <a class="navbar-brand fw-bold" routerLink="/">🎲 Cuatro Esquinas</a>
 
-    <!-- Toggle móvil -->
+    <a class="navbar-brand" routerLink="/">
+      <img width="28" class="me-2" />
+      🎲 Cuatro Esquinas
+    </a>
+
     <button
       class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Abrir o cerrar menú"
+      data-bs-target="#menu"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Menú -->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav align-items-center">
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+
         <li class="nav-item">
-          <a class="nav-link" routerLink="/">Inicio</a>
+          <a class="nav-link" routerLink="/" routerLinkActive="active">Inicio</a>
         </li>
 
-        <!-- Categorías dinámicas -->
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
             href="#"
-            id="categoriasDropdown"
             role="button"
             data-bs-toggle="dropdown"
-            aria-expanded="false"
           >
             Categorías
           </a>
 
-          <ul class="dropdown-menu" aria-labelledby="categoriasDropdown">
-            <li><a class="dropdown-item" routerLink="/categoria/estrategia">Estrategia</a></li>
-            <li><a class="dropdown-item" routerLink="/categoria/infantiles">Infantiles</a></li>
-            <li><a class="dropdown-item" routerLink="/categoria/amigos">Amigos</a></li>
-            <li><a class="dropdown-item" routerLink="/categoria/cartas">Cartas</a></li>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" routerLink="/categorias/estrategia">Estrategia</a></li>
+            <li><a class="dropdown-item" routerLink="/categorias/infantiles">Infantiles</a></li>
+            <li><a class="dropdown-item" routerLink="/categorias/amigos">Amigos</a></li>
+            <li><a class="dropdown-item" routerLink="/categorias/cartas">Cartas</a></li>
           </ul>
         </li>
 
-        <!-- Páginas básicas permitidas -->
         <li class="nav-item">
           <a class="nav-link" routerLink="/registro">Regístrate</a>
         </li>
@@ -56,7 +47,26 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/login">Iniciar sesión</a>
         </li>
+
+        <!-- 🛒 BOTÓN CARRITO -->
+        <li class="nav-item ms-lg-3">
+          <a routerLink="/carrito" class="btn btn-outline-light position-relative">
+
+            <i class="bi bi-cart"></i> Carrito
+
+            <!-- Contador rojo -->
+            <span
+              *ngIf="cantidadTotal > 0"
+              class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"
+              style="font-size: 0.7rem"
+            >
+              {{ cantidadTotal }}
+            </span>
+
+          </a>
+        </li>
+
       </ul>
     </div>
   </div>
-</header>
+</nav>

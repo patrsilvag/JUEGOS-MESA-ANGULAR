@@ -10,6 +10,10 @@ export const routes: Routes = [
     path: 'categorias',
     loadChildren: () => import('./pages/categoria/categoria.routes').then((m) => m.categoriaRoutes),
   },
-
+  {
+    path: 'carrito',
+    loadComponent: () =>
+      import('./pages/carrito/carrito').then((m) => m.CarritoComponent),
+  },
   { path: '', component: Home },
 ];

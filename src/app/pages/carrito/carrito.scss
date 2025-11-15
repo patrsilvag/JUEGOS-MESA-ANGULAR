@@ -1,0 +1,159 @@
+/* ============================
+   MOBILE CARDS
+============================ */
+.item-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #eee;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+
+  img {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  h5 {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .label {
+    font-weight: 600;
+    color: #0d6efd;
+  }
+
+  .value {
+    font-weight: 500;
+  }
+}
+
+.cantidad-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f8f8f8;
+    font-weight: bold;
+  }
+
+  span {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+}
+
+.btn-eliminar {
+  width: 100%;
+  margin-top: 6px;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  background: #dc3545;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================
+   TABLET / DESKTOP TABLE
+============================ */
+@media (min-width: 768px) {
+  .tabla-scroll {
+    width: 100%;
+    max-height: 360px;    /* scroll vertical */
+    overflow-y: auto;
+    overflow-x: hidden;   /* sin scroll horizontal feo */
+    border-radius: 12px;
+  }
+
+  .tabla-scroll table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #222;
+    color: #fff;
+    padding: 12px;
+    z-index: 2;
+  }
+
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+
+  .producto-col {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+  }
+}
+
+/* ============================
+   RESUMEN
+============================ */
+.resumen-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #eee;
+
+  h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+}
+
+.linea {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.total-final {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.btn-vaciar {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #dc3545;
+  color: #fff;
+  font-weight: 600;
+}

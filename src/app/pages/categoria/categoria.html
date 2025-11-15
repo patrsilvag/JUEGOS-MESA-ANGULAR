@@ -10,30 +10,48 @@
   <h2 class="text-center mb-4">{{ categoriaActual?.subtitulo }}</h2>
 
   <!-- LISTA DE PRODUCTOS -->
-<div class="row g-4 justify-content-center">
-  @for (p of productosFiltrados; track p.id) {
-  <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-    <div class="producto-card h-100 shadow-sm">
-  <img [src]="p.imagen" [alt]="p.alt" loading="lazy" />
+  <div class="row g-4 justify-content-center">
+    @for (p of productosFiltrados; track p.id) {
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="producto-card h-100 shadow-sm">
 
-  <div class="contenido">
-    <h3>{{ p.nombre }}</h3>
+          <!-- Imagen -->
+          <img 
+            [src]="p.imagen" 
+            [alt]="p.alt" 
+            loading="lazy" 
+          />
 
-    <p class="descripcion">{{ p.desc }}</p>
+          <!-- Contenido -->
+          <div class="contenido text-center p-3">
 
-    <p class="precio">Precio: $ {{ p.precio | number }}</p>
+            <h3 class="fw-bold fs-6">{{ p.nombre }}</h3>
 
-    @if (p.descuento) {
-      <p class="descuento">Descuento disponible</p>
+            <p class="descripcion mb-2">
+              {{ p.desc }}
+            </p>
+
+            <p class="precio fw-bold text-primary mb-1">
+              Precio: $ {{ p.precio | number }}
+            </p>
+
+            @if (p.descuento) {
+              <p class="descuento text-success fw-bold mb-2">Descuento disponible</p>
+            }
+
+            <button 
+              class="btn btn-primary btn-sm w-100"
+              (click)="agregarProducto(p)"
+            >
+              Agregar
+            </button>
+
+          </div> <!-- /contenido -->
+
+        </div> <!-- /producto-card -->
+      </div>
     }
-
-    <button class="btn btn-primary btn-sm w-100">Agregar</button>
   </div>
-</div>
-  </div>
-  }
-</div>
-
 
   <div class="text-center mt-5">
     <a class="btn btn-primary" routerLink="/">← Volver al inicio</a>

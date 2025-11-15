@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Cart } from '../../core/cart';
 
 @Component({
   selector: 'app-categoria',
@@ -9,8 +10,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './categoria.html',
   styleUrls: ['./categoria.scss'],
 })
-export class CategoriaComponent {
+export class CategoriaComponent implements OnInit {
   slug!: string;
+  categoriaActual: any = null;
+  productosFiltrados: any[] = [];
 
   categoriasData: any = {
     amigos: {
@@ -31,9 +34,6 @@ export class CategoriaComponent {
     },
   };
 
-  // =========================================================
-  // 🔥 PRODUCTOS MIGRADOS DESDE productos.js
-  // =========================================================
   productos = [
     // Estrategia
     {
@@ -43,7 +43,7 @@ export class CategoriaComponent {
       precio: 29990,
       descuento: true,
       imagen: 'assets/img/catan.webp',
-      alt: 'Tablero del juego Catan con piezas de madera y caminos',
+      alt: 'Tablero Catan',
       desc: 'Coloniza la isla y comercia recursos.',
     },
     {
@@ -53,8 +53,8 @@ export class CategoriaComponent {
       precio: 24990,
       descuento: false,
       imagen: 'assets/img/risk.webp',
-      alt: 'Tablero mundial del juego Risk con tropas distribuidas',
-      desc: 'Conquista el mundo con estrategia militar.',
+      alt: 'Tablero Risk',
+      desc: 'Conquista el mundo con estrategia.',
     },
     {
       id: 'sku-ajed',
@@ -63,8 +63,8 @@ export class CategoriaComponent {
       precio: 14990,
       descuento: true,
       imagen: 'assets/img/ajedrez.webp',
-      alt: 'Tablero de ajedrez con piezas blancas y negras',
-      desc: 'El clásico de estrategia por excelencia.',
+      alt: 'Ajedrez',
+      desc: 'Clásico de estrategia.',
     },
 
     // Cartas
@@ -75,7 +75,7 @@ export class CategoriaComponent {
       precio: 16990,
       descuento: true,
       imagen: 'assets/img/exploding_kittens.webp',
-      alt: 'Cartas ilustradas del juego Exploding Kittens',
+      alt: 'Exploding Kittens',
       desc: 'Evita explotar con cartas de defensa.',
     },
     {
@@ -85,8 +85,8 @@ export class CategoriaComponent {
       precio: 10990,
       descuento: false,
       imagen: 'assets/img/dobble.webp',
-      alt: 'Jugadores con cartas circulares del juego Dobble',
-      desc: 'Encuentra el símbolo común antes que otros.',
+      alt: 'Dobble',
+      desc: 'Encuentra el símbolo común.',
     },
     {
       id: 'sku-poker',
@@ -95,8 +95,8 @@ export class CategoriaComponent {
       precio: 19990,
       descuento: true,
       imagen: 'assets/img/cartas_poker.webp',
-      alt: 'Cartas y fichas de póker sobre mesa verde',
-      desc: 'Baraja y fichas para clásicos de casino.',
+      alt: 'Poker',
+      desc: 'Baraja y fichas clásicas.',
     },
 
     // Amigos
@@ -107,8 +107,8 @@ export class CategoriaComponent {
       precio: 18990,
       descuento: true,
       imagen: 'assets/img/pictionary.webp',
-      alt: 'Personas dibujando y adivinando en Pictionary',
-      desc: 'Dibuja y adivina, ideal en grupo.',
+      alt: 'Pictionary',
+      desc: 'Dibuja y adivina.',
     },
     {
       id: 'sku-jenga',
@@ -117,8 +117,8 @@ export class CategoriaComponent {
       precio: 13990,
       descuento: false,
       imagen: 'assets/img/jenga.webp',
-      alt: 'Manos retirando bloques de una torre de Jenga',
-      desc: 'Pulso firme para que no caiga la torre.',
+      alt: 'Jenga',
+      desc: 'Pulso firme para no botar la torre.',
     },
     {
       id: 'sku-uno',
@@ -127,8 +127,8 @@ export class CategoriaComponent {
       precio: 8990,
       descuento: true,
       imagen: 'assets/img/uno.webp',
-      alt: 'Cartas del juego UNO extendidas en mesa',
-      desc: 'Clásico de descarte ágil y divertido.',
+      alt: 'UNO',
+      desc: 'Clásico rápido y divertido.',
     },
 
     // Infantiles
@@ -139,7 +139,7 @@ export class CategoriaComponent {
       precio: 12990,
       descuento: true,
       imagen: 'assets/img/candyland.webp',
-      alt: 'Tablero colorido del juego Candy Land',
+      alt: 'Candy Land',
       desc: 'Aprenden colores y turnos.',
     },
     {
@@ -149,8 +149,8 @@ export class CategoriaComponent {
       precio: 9990,
       descuento: false,
       imagen: 'assets/img/serpientes.webp',
-      alt: 'Tablero de Serpientes y Escaleras con dados',
-      desc: 'Azar y paciencia para los más pequeños.',
+      alt: 'Serpientes y Escaleras',
+      desc: 'Azar y diversión.',
     },
     {
       id: 'sku-memo',
@@ -159,21 +159,32 @@ export class CategoriaComponent {
       precio: 7990,
       descuento: true,
       imagen: 'assets/img/memoria.webp',
-      alt: 'Cartas de animales de un juego de memoria',
-      desc: 'Mejora la concentración y memoria visual.',
+      alt: 'Memoria',
+      desc: 'Mejora la concentración.',
     },
   ];
 
-  categoriaActual: any = null;
-  productosFiltrados: any[] = [];
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private cart: Cart) {}
 
   ngOnInit(): void {
-    this.slug = this.route.snapshot.params['slug'];
-    this.categoriaActual = this.categoriasData[this.slug];
+    // 🔥 escuchar SIEMPRE los cambios de categoría
+    this.route.params.subscribe((params) => {
+      this.slug = params['slug'];
 
-    // 👉 Filtrar y mostrar solo 3 productos
-    this.productosFiltrados = this.productos.filter((p) => p.categoria === this.slug).slice(0, 3);
+      this.categoriaActual = this.categoriasData[this.slug] ?? null;
+
+      // Filtrar productos y mostrar solo los 3 primeros
+      this.productosFiltrados = this.productos.filter((p) => p.categoria === this.slug).slice(0, 3);
+    });
+  }
+
+  agregarProducto(p: any) {
+    this.cart.agregar({
+      id: p.id,
+      nombre: p.nombre,
+      precio: p.precio,
+      imagen: p.imagen,
+      cantidad: 1,
+    });
   }
 }
