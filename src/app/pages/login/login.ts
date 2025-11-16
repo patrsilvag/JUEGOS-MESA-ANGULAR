@@ -1,45 +1,41 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
 })
 export class LoginComponent {
-  mostrarPassword = false;
+  form!: FormGroup;
+  verClave = false;
+  errorLogin: string | null = null;
 
-  form: FormGroup;
-
-  constructor(private fb: FormBuilder) {
-    // Inicialización correcta del formulario
+  constructor(private fb: FormBuilder, private router: Router) {
     this.form = this.fb.group({
-      correo: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      usuario: ['', Validators.required],
+      clave: ['', Validators.required],
     });
   }
 
-  // Acceso rápido a controles
   campo(nombre: string) {
     return this.form.get(nombre)!;
   }
 
-  // Toggle para mostrar/ocultar contraseña
-  togglePassword() {
-    this.mostrarPassword = !this.mostrarPassword;
-  }
-
-  // Enviar formulario
   submit() {
+    this.errorLogin = null;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    console.log('Login:', this.form.value);
+    // Por ahora solo navegamos si es válido.
+    // Aquí luego podrás conectar AuthService / localStorage según lo que diga el profe.
+    this.router.navigate(['/home']);
   }
 }

@@ -1,0 +1,143 @@
+<section class="form-container">
+
+  <h2 class="form-title">Mi Perfil</h2>
+
+  <!-- ====================================
+       FORMULARIO PERFIL
+  ====================================== -->
+  <section class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+
+      <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" novalidate>
+
+        <div class="row g-3">
+
+          <!-- NOMBRE COMPLETO -->
+          <div class="col-12 col-md-6 form-group">
+            <label>Nombre completo</label>
+            <input type="text" class="form-control" formControlName="nombreCompleto" />
+            <small *ngIf="perfilCampo('nombreCompleto').touched && perfilCampo('nombreCompleto').invalid" class="error">
+              Ingresa un nombre válido.
+            </small>
+          </div>
+
+          <!-- NOMBRE DE USUARIO -->
+          <div class="col-12 col-md-6 form-group">
+            <label>Nombre de usuario</label>
+            <input type="text" class="form-control" formControlName="nombreUsuario" />
+            <small *ngIf="perfilCampo('nombreUsuario').touched && perfilCampo('nombreUsuario').invalid" class="error">
+              Debe tener al menos 3 caracteres.
+            </small>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="col-12 col-md-6 form-group">
+            <label>Correo electrónico</label>
+            <input type="email" class="form-control" formControlName="email" readonly />
+          </div>
+
+          <!-- FECHA -->
+          <div class="col-12 col-md-6 form-group">
+            <label>Fecha de nacimiento</label>
+            <input type="date" class="form-control" formControlName="fechaNacimiento" />
+            <small *ngIf="perfilCampo('fechaNacimiento').touched && perfilCampo('fechaNacimiento').errors?.['required']" class="error">
+              La fecha es obligatoria.
+            </small>
+            <small *ngIf="perfilCampo('fechaNacimiento').touched && perfilCampo('fechaNacimiento').errors?.['fechaFutura']" class="error">
+              No puede ser futura.
+            </small>
+          </div>
+
+          <!-- DIRECCIÓN -->
+          <div class="col-12 form-group">
+            <label>Dirección (opcional)</label>
+            <input type="text" class="form-control" formControlName="direccion" />
+          </div>
+
+        </div>
+
+        <!-- BOTONES PERFIL -->
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-primary flex-grow-1">Guardar cambios</button>
+          <button type="button" class="btn-secondary flex-grow-1" (click)="resetPerfil()">Deshacer</button>
+        </div>
+
+      </form>
+
+      <div *ngIf="mensajePerfilOK" class="alert alert-success text-center mt-3">
+        ✔ Datos actualizados correctamente.
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================
+       FORMULARIO NUEVA CONTRASEÑA
+  ====================================== -->
+  <section class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <form [formGroup]="passForm" (ngSubmit)="actualizarPassword()" novalidate>
+
+        <div class="row g-3">
+
+          <!-- ACTUAL -->
+          <div class="col-12 col-md-4 form-group">
+            <label>Contraseña actual</label>
+            <div class="password-group">
+              <input [type]="verPassActual ? 'text' : 'password'" class="form-control" formControlName="passActual" />
+              <button type="button" class="btn-ojo" (click)="verPassActual = !verPassActual">👁️</button>
+            </div>
+            <small *ngIf="passCampo('passActual').touched && passCampo('passActual').invalid" class="error">
+              Obligatoria.
+            </small>
+          </div>
+
+          <!-- NUEVA -->
+          <div class="col-12 col-md-4 form-group">
+            <label>Nueva contraseña</label>
+            <div class="password-group">
+              <input [type]="verPassNueva ? 'text' : 'password'" class="form-control" formControlName="passNueva" />
+              <button type="button" class="btn-ojo" (click)="verPassNueva = !verPassNueva">👁️</button>
+            </div>
+
+            <div class="reglas" *ngIf="passCampo('passNueva').touched">
+              <span [class.ok]="!passCampo('passNueva').errors?.['minlength']">Mín. 6</span>
+              <span [class.ok]="!passCampo('passNueva').errors?.['uppercase']">Mayúscula</span>
+              <span [class.ok]="!passCampo('passNueva').errors?.['number']">Número</span>
+              <span [class.ok]="!passCampo('passNueva').errors?.['special']">Especial</span>
+            </div>
+          </div>
+
+          <!-- CONFIRMAR -->
+          <div class="col-12 col-md-4 form-group">
+            <label>Confirmar contraseña</label>
+            <div class="password-group">
+              <input [type]="verPassConfirm ? 'text' : 'password'" class="form-control" formControlName="passConfirm" />
+              <button type="button" class="btn-ojo" (click)="verPassConfirm = !verPassConfirm">👁️</button>
+            </div>
+
+            <small *ngIf="passForm.errors?.['noCoinciden'] && passCampo('passConfirm').touched" class="error">
+              No coinciden.
+            </small>
+          </div>
+
+        </div>
+
+        <!-- BOTONES PASS -->
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-primary flex-grow-1">Actualizar contraseña</button>
+          <button type="button" class="btn-secondary flex-grow-1" (click)="resetPass()">Limpiar</button>
+        </div>
+
+      </form>
+
+      <div *ngIf="mensajePassOK" class="alert alert-success text-center mt-3">
+        ✔ Contraseña actualizada.
+      </div>
+
+    </div>
+  </section>
+
+</section>
+

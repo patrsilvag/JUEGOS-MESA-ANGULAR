@@ -1,65 +1,63 @@
-<section class="login-container">
-  <h2 class="text-center mb-4">Iniciar sesión</h2>
+<section class="form-container">
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-    <!-- ============================
-         CORREO
-    ============================= -->
-    <label for="correo">Correo</label>
+  <h2 class="form-title">Iniciar sesión</h2>
 
-    <input
-      id="correo"
-      type="email"
-      class="form-control"
-      placeholder="ejemplo@correo.com"
-      formControlName="correo"
-    />
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
-    <small class="error" *ngIf="campo('correo').touched && campo('correo').invalid">
-      Ingresa un correo válido.
-    </small>
+    <!-- USUARIO -->
+    <div class="form-group">
+      <label>Nombre de usuario:</label>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="usuario"
+        placeholder="Ingresa tu usuario"
+      />
+      <small *ngIf="campo('usuario').touched && campo('usuario').invalid" class="error">
+        El usuario es obligatorio.
+      </small>
+    </div>
 
-    <!-- ============================
-         CONTRASEÑA
-    ============================= -->
-    <div class="form-group mt-3">
-      <label for="password">Contraseña</label>
-
-      <div class="password-wrapper">
+    <!-- CLAVE -->
+    <div class="form-group">
+      <label>Contraseña:</label>
+      <div class="password-group">
         <input
-          id="password"
-          type="{{ mostrarPassword ? 'text' : 'password' }}"
+          [type]="verClave ? 'text' : 'password'"
           class="form-control"
-          formControlName="password"
+          formControlName="clave"
         />
-
-        <button type="button" class="btn-eye" (click)="togglePassword()">
-          <i class="bi" [ngClass]="mostrarPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+        <button
+          type="button"
+          class="btn-ojo"
+          (click)="verClave = !verClave"
+        >
+          👁️
         </button>
       </div>
-
-      <small class="error" *ngIf="campo('password').touched && campo('password').invalid">
+      <small *ngIf="campo('clave').touched && campo('clave').invalid" class="error">
         La contraseña es obligatoria.
       </small>
     </div>
 
-    <!-- ============================
-         BOTÓN LOGIN
-    ============================= -->
-    <button type="submit" class="btn btn-primary btn-login mt-4">Entrar</button>
+    <!-- ERROR GENERAL (si más adelante quieres validar credenciales) -->
+    <p *ngIf="errorLogin" class="error">
+      {{ errorLogin }}
+    </p>
 
-    <!-- ============================
-         ENLACES AUXILIARES
-    ============================= -->
-    <div class="text-center mt-3">
-      <a routerLink="/recuperar-clave" class="link">¿Olvidaste tu contraseña?</a>
-    </div>
+    <!-- BOTÓN LOGIN -->
+    <button type="submit" class="btn-primary mt-3">
+      Ingresar
+    </button>
 
-    <hr class="my-4" />
+    <!-- LINKS -->
+    <p class="text-center mt-3">
+      <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+    </p>
+    <p class="text-center">
+      <a routerLink="/registro">¿No tienes cuenta? Regístrate</a>
+    </p>
 
-    <div class="text-center">
-      ¿No tienes cuenta?
-      <a routerLink="/registro">Regístrate aquí</a>
-    </div>
   </form>
+
 </section>

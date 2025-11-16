@@ -2,8 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Cart } from '../../core/cart';
-import { Observable } from 'rxjs';
-import { CartItem } from '../../core/cart';
 
 @Component({
   selector: 'app-navbar',
@@ -19,5 +17,15 @@ export class NavbarComponent {
     this.cart.carrito$.subscribe((items) => {
       this.cantidadTotal = items.reduce((s, i) => s + i.cantidad, 0);
     });
+  }
+
+  // 🔹 Lee el usuario desde localStorage en cada detección de cambios
+  get usuario() {
+    const raw = localStorage.getItem('usuario');
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  logout() {
+    localStorage.removeItem('usuario');
   }
 }
