@@ -3,79 +3,79 @@
   <h2 class="form-title">Mi Perfil</h2>
 
   <!-- ==========================
-       FORMULARIO DATOS PERSONALES
+       DATOS PERSONALES
   =========================== -->
   <form [formGroup]="formDatos" (ngSubmit)="guardarDatos()" novalidate>
 
-    <!-- NOMBRE -->
-    <div class="form-group">
-      <label>Nombre completo:</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="nombre"
-        placeholder="Ej: Juan Pérez"
-      />
-      <small *ngIf="fcDatos('nombre').touched && fcDatos('nombre').invalid" class="error">
-        Este campo es obligatorio.
-      </small>
+    <div class="grid-2">
+
+      <!-- NOMBRE -->
+      <div class="form-group">
+        <label>Nombre completo:</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="nombre"
+          placeholder="Ej: Juan Pérez"
+        />
+        <small *ngIf="fcDatos('nombre').touched && fcDatos('nombre').invalid" class="error">
+          Este campo es obligatorio.
+        </small>
+      </div>
+
+      <!-- USUARIO -->
+      <div class="form-group">
+        <label>Nombre de usuario:</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="usuario"
+        />
+        <small *ngIf="fcDatos('usuario').touched && fcDatos('usuario').invalid" class="error">
+          Este campo es obligatorio.
+        </small>
+      </div>
+
+      <!-- CORREO (deshabilitado correctamente desde TS, sin atributo boolean string) -->
+      <div class="form-group">
+        <label>Correo electrónico:</label>
+        <input
+          type="email"
+          class="form-control"
+          formControlName="correo"
+        />
+      </div>
+
+      <!-- FECHA NACIMIENTO -->
+      <div class="form-group">
+        <label>Fecha de nacimiento:</label>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="fechaNacimiento"
+        />
+        <small *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').invalid"
+               class="error">
+          Este campo es obligatorio.
+        </small>
+      </div>
+
+      <!-- DIRECCIÓN (ancho completo) -->
+      <div class="form-group full">
+        <label>Dirección:</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="direccion"
+          placeholder="Ej: Av. Siempre Viva 123"
+        />
+      </div>
+
     </div>
 
-    <!-- USUARIO -->
-    <div class="form-group">
-      <label>Nombre de usuario:</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="usuario"
-      />
-      <small *ngIf="fcDatos('usuario').touched && fcDatos('usuario').invalid" class="error">
-        Este campo es obligatorio.
-      </small>
-    </div>
-
-    <!-- CORREO (DESHABILITADO / NO EDITABLE) -->
-    <div class="form-group">
-      <label>Correo electrónico:</label>
-      <input
-        type="email"
-        class="form-control"
-        formControlName="correo"
-        [disabled]="true"
-      />
-    </div>
-
-    <!-- FECHA NACIMIENTO -->
-    <div class="form-group">
-      <label>Fecha de nacimiento:</label>
-      <input
-        type="date"
-        class="form-control"
-        formControlName="fechaNacimiento"
-      />
-      <small *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').invalid"
-             class="error">
-        Este campo es obligatorio.
-      </small>
-    </div>
-
-    <!-- DIRECCIÓN -->
-    <div class="form-group">
-      <label>Dirección:</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="direccion"
-        placeholder="Ej: Av. Siempre Viva 123"
-      />
-    </div>
-
-    <!-- BOTÓN GUARDAR -->
     <button type="submit" class="btn-primary mt-3">Guardar cambios</button>
-
   </form>
 
-  <!-- MENSAJE DE ÉXITO -->
   <div *ngIf="mensajeExito" class="alert alert-success text-center mt-3">
     ✔ Datos actualizados correctamente.
   </div>
@@ -89,69 +89,62 @@
 
   <form [formGroup]="formClave" (ngSubmit)="actualizarClave()" novalidate>
 
-    <!-- CLAVE ACTUAL -->
-    <div class="form-group">
-      <label>Contraseña actual:</label>
-      <div class="password-group">
-        <input
-          [type]="verActual ? 'text' : 'password'"
-          class="form-control"
-          formControlName="claveActual"
-        />
-        <button type="button" class="btn-ojo" (click)="verActual = !verActual">👁️</button>
+    <div class="grid-2">
+
+      <!-- CLAVE ACTUAL -->
+      <div class="form-group">
+        <label>Contraseña actual:</label>
+        <div class="password-group">
+          <input
+            [type]="verActual ? 'text' : 'password'"
+            class="form-control"
+            formControlName="claveActual"
+          />
+          <button type="button" class="btn-ojo" (click)="verActual = !verActual">👁️</button>
+        </div>
+        <small *ngIf="fcClave('claveActual').touched && fcClave('claveActual').invalid" class="error">
+          Debes ingresar tu contraseña actual.
+        </small>
       </div>
-      <small *ngIf="fcClave('claveActual').touched && fcClave('claveActual').invalid" class="error">
-        Debes ingresar tu contraseña actual.
-      </small>
+
+      <!-- NUEVA CLAVE -->
+      <div class="form-group">
+        <label>Nueva contraseña:</label>
+        <div class="password-group">
+          <input
+            [type]="verNueva ? 'text' : 'password'"
+            class="form-control"
+            formControlName="nuevaClave"
+          />
+          <button type="button" class="btn-ojo" (click)="verNueva = !verNueva">👁️</button>
+        </div>
+
+        <div class="reglas" *ngIf="fcClave('nuevaClave').touched">
+          <span [class.ok]="!fcClave('nuevaClave').errors?.['minlength']">Mín. 6</span>
+          <span [class.ok]="!fcClave('nuevaClave').errors?.['uppercase']">Mayúscula</span>
+          <span [class.ok]="!fcClave('nuevaClave').errors?.['number']">Número</span>
+          <span [class.ok]="!fcClave('nuevaClave').errors?.['special']">Especial</span>
+        </div>
+      </div>
+
+      <!-- REPETIR CLAVE -->
+      <div class="form-group full">
+        <label>Repetir nueva contraseña:</label>
+        <div class="password-group">
+          <input
+            [type]="verRepetir ? 'text' : 'password'"
+            class="form-control"
+            formControlName="repetirClave"
+          />
+          <button type="button" class="btn-ojo" (click)="verRepetir = !verRepetir">👁️</button>
+        </div>
+        <small *ngIf="formClave.errors?.['noCoinciden']" class="error">
+          Las contraseñas no coinciden.
+        </small>
+      </div>
+
     </div>
 
-    <!-- NUEVA CLAVE -->
-    <div class="form-group">
-      <label>Nueva contraseña:</label>
-      <div class="password-group">
-        <input
-          [type]="verNueva ? 'text' : 'password'"
-          class="form-control"
-          formControlName="nuevaClave"
-        />
-        <button type="button" class="btn-ojo" (click)="verNueva = !verNueva">👁️</button>
-      </div>
-
-      <!-- REGLAS -->
-      <div class="reglas" *ngIf="fcClave('nuevaClave').touched">
-        <span [class.ok]="!fcClave('nuevaClave').errors?.['minlength']">Mín. 6</span>
-        <span [class.ok]="!fcClave('nuevaClave').errors?.['uppercase']">Mayúscula</span>
-        <span [class.ok]="!fcClave('nuevaClave').errors?.['number']">Número</span>
-        <span [class.ok]="!fcClave('nuevaClave').errors?.['special']">Especial</span>
-      </div>
-    </div>
-
-    <!-- REPETIR CLAVE -->
-    <div class="form-group">
-      <label>Repetir nueva contraseña:</label>
-      <div class="password-group">
-        <input
-          [type]="verRepetir ? 'text' : 'password'"
-          class="form-control"
-          formControlName="repetirClave"
-        />
-        <button type="button" class="btn-ojo" (click)="verRepetir = !verRepetir">👁️</button>
-      </div>
-
-      <small
-        *ngIf="formClave.errors?.['noCoinciden'] && fcClave('repetirClave').touched"
-        class="error"
-      >
-        Las contraseñas no coinciden.
-      </small>
-    </div>
-
-    <!-- ERROR CONTRASEÑA INCORRECTA -->
-    <small *ngIf="formClave.errors?.['incorrecta']" class="error">
-      La contraseña actual no es correcta.
-    </small>
-
-    <!-- BOTÓN ACTUALIZAR -->
     <button type="submit" class="btn-primary mt-3">Actualizar contraseña</button>
 
   </form>
