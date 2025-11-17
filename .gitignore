@@ -80,3 +80,37 @@ testem.log
 /connect.lock
 /typings
 __screenshots__/
+
+# ==========================================
+# Archivos comprimidos
+# ==========================================
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+*.xz
+*.tgz
+*.tbz
+
+# ==========================================
+# Cachés adicionales
+# ==========================================
+.cache/
+.tmp/
+
+# ==========================================
+# Herramientas de build modernas
+# ==========================================
+.angular/ssr
+.parcel-cache/
+node_modules/.vite/
+
+# ==========================================
+# Testing (complemento)
+# ==========================================
+/.cypress-cache/
+/.cypress/
+/playwright-report/
+/test-results
