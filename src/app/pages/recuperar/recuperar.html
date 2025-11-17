@@ -1,117 +1,110 @@
-<div class="container recuperar-container">
-
-  <!-- ============================
+<section class="form-container">
+  <div class="container recuperar-container">
+    <!-- ============================
        PASO 1 — INGRESAR CORREO
   ============================= -->
-  <div *ngIf="paso === 1" class="form-block">
+    <div *ngIf="paso === 1" class="form-block">
+      <h2 class="text-center mb-3">Recuperar contraseña</h2>
 
-    <h2 class="text-center mb-3">Recuperar contraseña</h2>
+      <form [formGroup]="formCorreo" novalidate>
+        <label>Correo electrónico</label>
+        <input type="email" class="form-control" formControlName="correo" />
 
-    <form [formGroup]="formCorreo" novalidate>
+        <small *ngIf="formCorreo.touched && formCorreo.invalid" class="error">
+          Debes ingresar un correo válido.
+        </small>
 
-      <label>Correo electrónico</label>
-      <input
-        type="email"
-        class="form-control"
-        formControlName="correo"
-      />
+        <small *ngIf="formCorreo.errors?.['noExiste']" class="error">
+          El correo no está registrado.
+        </small>
 
-      <small *ngIf="formCorreo.touched && formCorreo.invalid" class="error">
-        Debes ingresar un correo válido.
-      </small>
+        <button type="button" class="btn-primary mt-3" (click)="enviarCorreo()">
+          Enviar código
+        </button>
+      </form>
+    </div>
 
-      <small *ngIf="formCorreo.errors?.['noExiste']" class="error">
-        El correo no está registrado.
-      </small>
-
-      <button type="button" class="btn-primary mt-3" (click)="enviarCorreo()">
-        Enviar código
-      </button>
-
-    </form>
-
-  </div>
-
-  <!-- ============================
+    <!-- ============================
        PASO 2 — VALIDAR CÓDIGO
   ============================= -->
-  <div *ngIf="paso === 2" class="form-block">
+    <div *ngIf="paso === 2" class="form-block">
+      <h2 class="text-center mb-3">Verifica tu código</h2>
 
-    <h2 class="text-center mb-3">Verifica tu código</h2>
-
-    <p class="text-center">
-      Ingresa el código enviado a: <strong>{{ correoValidado }}</strong>
-    </p>
-
-    <form [formGroup]="formCodigo" novalidate>
-
-      <label>Código</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="codigo"
-      />
-
-      <small *ngIf="formCodigo.errors?.['incorrecto']" class="error">
-        El código ingresado no es correcto.
-      </small>
-
-      <button type="button" class="btn-primary mt-3" (click)="verificarCodigo()">
-        Validar código
-      </button>
-
-      <p class="mt-3 text-center">
-        <a style="cursor:pointer" (click)="paso = 1">← Cambiar correo</a>
+      <p class="text-center">
+        Ingresa el código enviado a: <strong>{{ correoValidado }}</strong>
       </p>
 
-    </form>
+      <form [formGroup]="formCodigo" novalidate>
+        <label>Código</label>
+        <input type="text" class="form-control" formControlName="codigo" />
 
-  </div>
+        <small *ngIf="formCodigo.errors?.['incorrecto']" class="error">
+          El código ingresado no es correcto.
+        </small>
 
-  <!-- ============================
+        <button type="button" class="btn-primary mt-3" (click)="verificarCodigo()">
+          Validar código
+        </button>
+
+        <p class="mt-3 text-center">
+          <a style="cursor: pointer" (click)="paso = 1">← Cambiar correo</a>
+        </p>
+      </form>
+    </div>
+
+    <!-- ============================
        PASO 3 — NUEVA CONTRASEÑA
   ============================= -->
-  <div *ngIf="paso === 3" class="form-block">
+    <div *ngIf="paso === 3" class="form-block">
 
-    <h2 class="text-center mb-3">Nueva contraseña</h2>
+  <h2 class="text-center mb-3">Nueva contraseña</h2>
 
-    <form [formGroup]="formClave" novalidate>
+  <form [formGroup]="formClave" novalidate>
 
-      <label>Nueva contraseña</label>
+    <!-- NUEVA CLAVE -->
+    <label>Nueva contraseña</label>
+    <div class="password-group">
       <input
-        type="password"
+        [type]="verClave ? 'text' : 'password'"
         class="form-control"
         formControlName="clave"
       />
+      <button type="button" class="btn-ojo" (click)="verClave = !verClave">👁️</button>
+    </div>
 
-      <label class="mt-2">Repetir contraseña</label>
+    <!-- REPETIR CLAVE -->
+    <label class="mt-2">Repetir contraseña</label>
+    <div class="password-group">
       <input
-        type="password"
+        [type]="verClave2 ? 'text' : 'password'"
         class="form-control"
         formControlName="clave2"
       />
+      <button type="button" class="btn-ojo" (click)="verClave2 = !verClave2">👁️</button>
+    </div>
 
-      <small *ngIf="formClave.errors?.['noCoinciden']" class="error">
-        Las contraseñas no coinciden.
-      </small>
+    <small *ngIf="formClave.errors?.['noCoinciden']" class="error">
+      Las contraseñas no coinciden.
+    </small>
 
-      <button type="button" class="btn-primary mt-3" (click)="actualizarClave()">
-        Guardar nueva contraseña
-      </button>
+    <button type="button" class="btn-primary mt-3" (click)="actualizarClave()">
+      Guardar nueva contraseña
+    </button>
 
-      <p class="mt-3 text-center">
-        <a style="cursor:pointer" (click)="paso = 2">← Volver</a>
-      </p>
+    <p class="mt-3 text-center">
+      <a style="cursor:pointer" (click)="paso = 2">← Volver</a>
+    </p>
 
-    </form>
-
-  </div>
-
-  <!-- ============================
-       MENSAJE DE ÉXITO
-  ============================= -->
-  <div *ngIf="mensajeExito" class="alert alert-success text-center mt-3">
-    Contraseña actualizada correctamente ✔
-  </div>
+  </form>
 
 </div>
+
+
+    <!-- ============================
+       MENSAJE DE ÉXITO
+  ============================= -->
+    <div *ngIf="mensajeExito" class="alert alert-success text-center mt-3">
+      Contraseña actualizada correctamente ✔
+    </div>
+  </div>
+</section>

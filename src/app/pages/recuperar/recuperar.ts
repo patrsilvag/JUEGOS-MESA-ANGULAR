@@ -15,6 +15,8 @@ export class RecuperarComponent {
   mensajeExito = false;
   codigoGenerado = '';
   correoValidado = '';
+  verClave = false;
+  verClave2 = false;
 
   formCorreo!: FormGroup;
   formCodigo!: FormGroup;
@@ -49,7 +51,7 @@ export class RecuperarComponent {
     }
 
     this.correoValidado = correo;
-    this.codigoGenerado = Math.floor(100000 + Math.random() * 900000).toString();
+    this.codigoGenerado = '123456';
 
     console.log('Código enviado:', this.codigoGenerado);
 
