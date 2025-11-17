@@ -30,16 +30,16 @@
   grid-template-columns: 1fr;  // MOBILE FIRST
   gap: 1rem;
 
-  // en pantallas medianas o más → 2 columnas
-  @media (min-width: 600px) {
-    grid-template-columns: 1fr 1fr;
+  // en pantallas medianas o más → 3 columnas
+  @media (min-width: 600px) { // <-- Mantener el mismo breakpoint si lo deseas, o cambiar a uno mayor
+    grid-template-columns: 1fr 1fr 1fr; // <--- CAMBIAR ESTO: de 1fr 1fr a 1fr 1fr 1fr
   }
 
   .full {
     grid-column: span 1;
 
     @media (min-width: 600px) {
-      grid-column: span 2;
+      grid-column: span 3; // <--- CAMBIAR ESTO: de span 2 a span 3
     }
   }
 }
