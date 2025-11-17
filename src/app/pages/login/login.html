@@ -4,21 +4,21 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
-    <!-- USUARIO -->
+    <!-- CORREO (antes usuario, ahora login por correo) -->
     <div class="form-group">
-      <label>Nombre de usuario:</label>
+      <label>Correo electrónico:</label>
       <input
-        type="text"
+        type="email"
         class="form-control"
-        formControlName="usuario"
-        placeholder="Ingresa tu usuario"
+        formControlName="correo"
+        placeholder="Ej: usuario@gmail.com"
       />
-      <small *ngIf="campo('usuario').touched && campo('usuario').invalid" class="error">
-        El usuario es obligatorio.
+      <small *ngIf="campo('correo').touched && campo('correo').invalid" class="error">
+        Ingresa un correo válido.
       </small>
     </div>
 
-    <!-- CLAVE -->
+    <!-- CONTRASEÑA -->
     <div class="form-group">
       <label>Contraseña:</label>
       <div class="password-group">
@@ -40,7 +40,7 @@
       </small>
     </div>
 
-    <!-- ERROR GENERAL (si más adelante quieres validar credenciales) -->
+    <!-- ERROR GENERAL -->
     <p *ngIf="errorLogin" class="error">
       {{ errorLogin }}
     </p>

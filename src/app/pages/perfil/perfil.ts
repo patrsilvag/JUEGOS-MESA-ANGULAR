@@ -1,54 +1,56 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
-  FormGroup,
   Validators,
+  FormGroup,
   ReactiveFormsModule,
   AbstractControl,
-  ValidationErrors,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.scss'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule],
 })
-export class PerfilComponent {
-  // ==============================
-  // FORMS
-  // ==============================
-  perfilForm!: FormGroup;
-  passForm!: FormGroup;
+export class PerfilComponent implements OnInit {
+  usuario: any = null;
+  mensajeExito = false;
 
-  // ==============================
-  // STATE
-  // ==============================
-  mensajePerfilOK = false;
-  mensajePassOK = false;
+  verActual = false;
+  verNueva = false;
+  verRepetir = false;
 
-  verPassActual = false;
-  verPassNueva = false;
-  verPassConfirm = false;
+  formDatos!: FormGroup;
+  formClave!: FormGroup;
 
-  constructor(private fb: FormBuilder) {
-    // ---- PERFIL ----
-    this.perfilForm = this.fb.group({
-      nombreCompleto: ['', Validators.required],
-      nombreUsuario: ['', [Validators.required, Validators.minLength(3)]],
-      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
-      fechaNacimiento: ['', [Validators.required, this.fechaFuturaValidator()]],
-      direccion: [''],
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
+
+  ngOnInit(): void {
+    // Ahora sí puedes usar this.auth
+    this.usuario = this.auth.getUsuarioActual();
+
+    // ================
+    // FORM DATOS
+    // ================
+    this.formDatos = this.fb.group({
+      nombre: [this.usuario?.nombre ?? '', Validators.required],
+      usuario: [this.usuario?.usuario ?? '', Validators.required],
+      correo: [{ value: this.usuario?.correo ?? '', disabled: true }],
+      fechaNacimiento: [this.usuario?.fechaNacimiento ?? '', Validators.required],
+      direccion: [this.usuario?.direccion ?? ''],
     });
 
-    // ---- PASSWORD ----
-    this.passForm = this.fb.group(
+    // ================
+    // FORM CLAVE
+    // ================
+    this.formClave = this.fb.group(
       {
-        passActual: ['', Validators.required],
-        passNueva: [
+        claveActual: ['', Validators.required],
+        nuevaClave: [
           '',
           [
             Validators.required,
@@ -58,94 +60,95 @@ export class PerfilComponent {
             this.specialValidator(),
           ],
         ],
-        passConfirm: ['', Validators.required],
+        repetirClave: ['', Validators.required],
       },
-      { validators: this.clavesIgualesValidator() }
+      { validators: this.coincidenClaves() }
     );
   }
 
-  // ==============================
+  // ================================
   // GETTERS
-  // ==============================
-  perfilCampo(campo: string): AbstractControl {
-    return this.perfilForm.get(campo)!;
+  // ================================
+  fcDatos(nombre: string): AbstractControl {
+    return this.formDatos.get(nombre)!;
   }
 
-  passCampo(campo: string): AbstractControl {
-    return this.passForm.get(campo)!;
+  fcClave(nombre: string): AbstractControl {
+    return this.formClave.get(nombre)!;
   }
 
-  // ==============================
+  // ================================
   // VALIDADORES
-  // ==============================
-  fechaFuturaValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const valor = new Date(control.value);
-      const hoy = new Date();
-      return valor > hoy ? { fechaFutura: true } : null;
-    };
-  }
-
+  // ================================
   uppercaseValidator() {
-    return (c: AbstractControl): ValidationErrors | null =>
-      /[A-Z]/.test(c.value || '') ? null : { uppercase: true };
+    return (c: AbstractControl) => (/[A-Z]/.test(c.value || '') ? null : { uppercase: true });
   }
 
   numberValidator() {
-    return (c: AbstractControl): ValidationErrors | null =>
-      /[0-9]/.test(c.value || '') ? null : { number: true };
+    return (c: AbstractControl) => (/[0-9]/.test(c.value || '') ? null : { number: true });
   }
 
   specialValidator() {
-    return (c: AbstractControl): ValidationErrors | null =>
-      /[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true };
+    return (c: AbstractControl) => (/[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true });
   }
 
-  clavesIgualesValidator() {
-    return (group: AbstractControl): ValidationErrors | null => {
-      const p1 = group.get('passNueva')?.value;
-      const p2 = group.get('passConfirm')?.value;
-      return p1 === p2 ? null : { noCoinciden: true };
+  coincidenClaves() {
+    return (group: AbstractControl) => {
+      const c1 = group.get('nuevaClave')?.value;
+      const c2 = group.get('repetirClave')?.value;
+      return c1 === c2 ? null : { noCoinciden: true };
     };
   }
 
-  // ==============================
-  // ACCIONES PERFIL
-  // ==============================
-  guardarPerfil() {
-    if (this.perfilForm.invalid) {
-      this.perfilForm.markAllAsTouched();
+  // ================================
+  // GUARDAR DATOS PERSONALES
+  // ================================
+  guardarDatos() {
+    if (this.formDatos.invalid) return this.formDatos.markAllAsTouched();
+
+    const data = {
+      ...this.usuario,
+      ...this.formDatos.getRawValue(), // correo incluido aunque disabled
+    };
+
+    this.auth.actualizarUsuario(data);
+    this.usuario = data;
+
+    this.mensajeExito = true;
+    setTimeout(() => (this.mensajeExito = false), 2500);
+  }
+
+  // ================================
+  // CAMBIAR CONTRASEÑA
+  // ================================
+  actualizarClave() {
+    if (this.formClave.invalid) {
+      this.formClave.markAllAsTouched();
       return;
     }
 
-    this.mensajePerfilOK = true;
-    setTimeout(() => (this.mensajePerfilOK = false), 1800);
-  }
-
-  resetPerfil() {
-    this.perfilForm.reset({
-      nombreCompleto: '',
-      nombreUsuario: '',
-      email: '',
-      fechaNacimiento: '',
-      direccion: '',
-    });
-  }
-
-  // ==============================
-  // ACCIONES PASSWORD
-  // ==============================
-  actualizarPassword() {
-    if (this.passForm.invalid) {
-      this.passForm.markAllAsTouched();
+    // 1) Validar coincidencia
+    if (this.formClave.value.nuevaClave !== this.formClave.value.repetirClave) {
+      this.formClave.setErrors({ noCoinciden: true });
       return;
     }
 
-    this.mensajePassOK = true;
-    setTimeout(() => (this.mensajePassOK = false), 1800);
-  }
+    // 2) Validar contraseña actual manualmente
+    if (this.formClave.value.claveActual !== this.usuario!.clave) {
+      this.formClave.setErrors({ incorrecta: true });
+      return;
+    }
 
-  resetPass() {
-    this.passForm.reset();
+    // 3) Llamada correcta (solo 2 parámetros)
+    const ok = this.auth.cambiarClave(this.usuario!.correo, this.formClave.value.nuevaClave!);
+
+    if (!ok) {
+      this.formClave.setErrors({ error: true });
+      return;
+    }
+
+    this.mensajeExito = true;
+    this.formClave.reset();
+    setTimeout(() => (this.mensajeExito = false), 2500);
   }
 }

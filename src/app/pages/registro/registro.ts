@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
+  ReactiveFormsModule,
   FormBuilder,
   Validators,
-  ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors,
   FormGroup,
+  AbstractControl,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-registro',
@@ -18,73 +18,56 @@ import { CommonModule } from '@angular/common';
 })
 export class RegistroComponent {
   form!: FormGroup;
+  mensajeExito = false;
 
   verClave = false;
   verClave2 = false;
 
-  // Mensaje de éxito
-  mensajeExito = false;
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
 
-  constructor(private fb: FormBuilder) {
-    this.crearFormulario(); // Inicialización correcta
-  }
-
-  // =====================================
-  // FORMULARIO TIPADO
-  // =====================================
-  crearFormulario() {
+  ngOnInit() {
     this.form = this.fb.group(
       {
-        nombre: ['', [Validators.required, Validators.minLength(3)]],
+        nombre: ['', Validators.required],
         usuario: ['', [Validators.required, Validators.minLength(3)]],
         correo: ['', [Validators.required, Validators.email]],
-        clave: ['', [Validators.required, this.passwordValidator]],
+        clave: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+            this.uppercaseValidator(),
+            this.numberValidator(),
+            this.specialValidator(),
+          ],
+        ],
         repetirClave: ['', Validators.required],
-        fechaNacimiento: ['', [Validators.required, this.fechaNoFutura]],
+        fechaNacimiento: ['', Validators.required],
         direccion: [''],
       },
-      { validators: this.clavesIguales }
+      { validators: this.coincidenClaves() }
     );
   }
 
-  campo(c: string): AbstractControl {
-    return this.form.get(c)!;
+  campo(nombre: string): AbstractControl {
+    return this.form.get(nombre)!;
   }
 
-  // =====================================
-  // VALIDADORES PERSONALIZADOS
-  // =====================================
-
-  passwordValidator(control: AbstractControl): ValidationErrors | null {
-    const v = control.value || '';
-    const errors: any = {};
-
-    if (v.length < 6) errors['minLength'] = true;
-    if (!/[A-Z]/.test(v)) errors['uppercase'] = true;
-    if (!/[0-9]/.test(v)) errors['number'] = true;
-    if (!/[^A-Za-z0-9]/.test(v)) errors['special'] = true;
-
-    return Object.keys(errors).length ? errors : null;
+  // Validadores personalizados
+  uppercaseValidator() {
+    return (c: AbstractControl) => (/[A-Z]/.test(c.value || '') ? null : { uppercase: true });
+  }
+  numberValidator() {
+    return (c: AbstractControl) => (/[0-9]/.test(c.value || '') ? null : { number: true });
+  }
+  specialValidator() {
+    return (c: AbstractControl) => (/[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true });
   }
 
-  fechaNoFutura(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) return null;
-
-    const hoy = new Date();
-    const fecha = new Date(control.value);
-    return fecha > hoy ? { fechaFutura: true } : null;
+  coincidenClaves() {
+    return (group: AbstractControl) =>
+      group.get('clave')?.value === group.get('repetirClave')?.value ? null : { noCoinciden: true };
   }
-
-  clavesIguales(group: AbstractControl): ValidationErrors | null {
-    const c1 = group.get('clave')?.value;
-    const c2 = group.get('repetirClave')?.value;
-
-    return c1 && c2 && c1 !== c2 ? { noCoinciden: true } : null;
-  }
-
-  // =====================================
-  // ACCIONES
-  // =====================================
 
   limpiar() {
     this.form.reset();
@@ -96,15 +79,26 @@ export class RegistroComponent {
       return;
     }
 
-    // Mostrar mensaje de éxito
+    const data = {
+      nombre: this.form.value.nombre!,
+      usuario: this.form.value.usuario!,
+      correo: this.form.value.correo!,
+      clave: this.form.value.clave!,
+      fechaNacimiento: this.form.value.fechaNacimiento!,
+      direccion: this.form.value.direccion || '',
+      rol: 'cliente' as const,
+    };
+
+    const ok = this.auth.registrar(data);
+
+    if (!ok) {
+      this.form.get('correo')?.setErrors({ existe: true });
+      return;
+    }
+
     this.mensajeExito = true;
-
-    // Ocultar luego de 3 segundos
-    setTimeout(() => {
-      this.mensajeExito = false;
-    }, 3000);
-
-    // Reset del formulario
     this.form.reset();
+
+    setTimeout(() => (this.mensajeExito = false), 2500);
   }
 }

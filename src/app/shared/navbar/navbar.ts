@@ -1,31 +1,32 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterModule } from '@angular/router';
+
+import { AuthService } from '../../core/auth.service';
 import { Cart } from '../../core/cart';
+import { Usuario } from '../../core/auth';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
+  imports: [CommonModule, RouterModule],
 })
 export class NavbarComponent {
+  usuario: Usuario | null = null;
   cantidadTotal = 0;
 
-  constructor(private cart: Cart) {
+  constructor(private auth: AuthService, private cart: Cart) {
+    this.usuario = this.auth.getUsuarioActual();
+
     this.cart.carrito$.subscribe((items) => {
-      this.cantidadTotal = items.reduce((s, i) => s + i.cantidad, 0);
+      this.cantidadTotal = items.reduce((acc, i) => acc + i.cantidad, 0);
     });
   }
 
-  // 🔹 Lee el usuario desde localStorage en cada detección de cambios
-  get usuario() {
-    const raw = localStorage.getItem('usuario');
-    return raw ? JSON.parse(raw) : null;
-  }
-
   logout() {
-    localStorage.removeItem('usuario');
+    this.auth.logout();
+    this.usuario = null;
   }
 }

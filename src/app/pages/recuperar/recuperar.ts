@@ -1,134 +1,66 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  Validators,
-  ReactiveFormsModule,
-  FormGroup,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-recuperar',
   standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './recuperar.html',
   styleUrls: ['./recuperar.scss'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
 })
 export class RecuperarComponent {
-  // ---------------------------
-  // CONSTANTE DEL CÓDIGO
-  // ---------------------------
-  readonly CODIGO_VERIFICACION = '123456';
-
-  // ---------------------------
-  // ESTADO DEL FLUJO
-  // ---------------------------
-  paso: 1 | 2 | 3 = 1;
+  paso = 1;
   mensajeExito = false;
-  verClave = false;
-  verClave2 = false;
+  codigoGenerado = '';
+  correoValidado = '';
 
-  // ---------------------------
-  // FORMULARIO TIPADO
-  // ---------------------------
-  form!: FormGroup;
+  formCorreo!: FormGroup;
+  formCodigo!: FormGroup;
+  formClave!: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
-    this.form = this.fb.group(
-      {
-        correo: ['', [Validators.required, Validators.email]],
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
 
-        code: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(6),
-            Validators.pattern(/^[0-9]+$/),
-          ],
-        ],
+  ngOnInit() {
+    this.formCorreo = this.fb.group({
+      correo: ['', [Validators.required, Validators.email]],
+    });
 
-        nuevaClave: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(6),
-            this.uppercaseValidator(),
-            this.numberValidator(),
-            this.specialValidator(),
-          ],
-        ],
+    this.formCodigo = this.fb.group({
+      codigo: ['', Validators.required],
+    });
 
-        repetirClave: ['', Validators.required],
-      },
-      { validators: this.clavesIgualesValidator() }
-    );
+    this.formClave = this.fb.group({
+      clave: ['', [Validators.required, Validators.minLength(6)]],
+      clave2: ['', Validators.required],
+    });
   }
-
-  // ---------------------------
-  // GETTER DE CONTROLES
-  // ---------------------------
-  campo(nombre: string): AbstractControl {
-    return this.form.get(nombre)!;
-  }
-
-  // ---------------------------
-  // VALIDADORES PERSONALIZADOS
-  // ---------------------------
-  uppercaseValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const v = control.value || '';
-      return /[A-Z]/.test(v) ? null : { uppercase: true };
-    };
-  }
-
-  numberValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const v = control.value || '';
-      return /[0-9]/.test(v) ? null : { number: true };
-    };
-  }
-
-  specialValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const v = control.value || '';
-      return /[^A-Za-z0-9]/.test(v) ? null : { special: true };
-    };
-  }
-
-  clavesIgualesValidator() {
-    return (group: AbstractControl): ValidationErrors | null => {
-      const c1 = group.get('nuevaClave')?.value;
-      const c2 = group.get('repetirClave')?.value;
-
-      if (!c1 || !c2) return null;
-      return c1 === c2 ? null : { noCoinciden: true };
-    };
-  }
-
-  // ---------------------------
-  // FLUJO DE PASOS
-  // ---------------------------
 
   enviarCorreo() {
-    if (this.campo('correo').invalid) {
-      this.campo('correo').markAsTouched();
+    if (this.formCorreo.invalid) return this.formCorreo.markAllAsTouched();
+
+    const correo = this.formCorreo.value.correo;
+    const user = this.auth.buscarPorCorreo(correo);
+
+    if (!user) {
+      this.formCorreo.setErrors({ noExiste: true });
       return;
     }
+
+    this.correoValidado = correo;
+    this.codigoGenerado = Math.floor(100000 + Math.random() * 900000).toString();
+
+    console.log('Código enviado:', this.codigoGenerado);
+
     this.paso = 2;
   }
 
   verificarCodigo() {
-    if (this.campo('code').invalid) {
-      this.campo('code').markAsTouched();
-      return;
-    }
+    if (this.formCodigo.invalid) return this.formCodigo.markAllAsTouched();
 
-    if (this.form.value.code !== this.CODIGO_VERIFICACION) {
-      this.campo('code').setErrors({ incorrecto: true });
+    if (this.formCodigo.value.codigo !== this.codigoGenerado) {
+      this.formCodigo.setErrors({ incorrecto: true });
       return;
     }
 
@@ -136,15 +68,27 @@ export class RecuperarComponent {
   }
 
   actualizarClave() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.formClave.invalid) return this.formClave.markAllAsTouched();
+
+    if (this.formClave.value.clave !== this.formClave.value.clave2) {
+      this.formClave.setErrors({ noCoinciden: true });
+      return;
+    }
+
+    const ok = this.auth.cambiarClave(this.correoValidado, this.formClave.value.clave);
+
+    if (!ok) {
+      this.formClave.setErrors({ error: true });
       return;
     }
 
     this.mensajeExito = true;
 
-    setTimeout(() => {
-      this.router.navigate(['/login']);
-    }, 1500);
+    setTimeout(() => (this.mensajeExito = false), 2500);
+
+    this.paso = 1;
+    this.formCorreo.reset();
+    this.formCodigo.reset();
+    this.formClave.reset();
   }
 }

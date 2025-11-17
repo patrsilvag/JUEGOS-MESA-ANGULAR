@@ -1,5 +1,84 @@
 @use '../../styles/form-base.scss';
 
-.mb-4 {
-  margin-bottom: 1.5rem;
+.form-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 2rem 2.2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.form-title {
+  font-weight: 700;
+  font-size: 1.55rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.form-group,
+.form-block label {
+  margin-top: 0.9rem;
+}
+
+.form-control {
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 1rem;
+}
+
+.error {
+  font-size: 0.83rem;
+  color: #d9534f;
+  margin-top: 0.2rem;
+}
+
+.password-group {
+  position: relative;
+}
+
+.btn-ojo {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #1661ff;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  color: white;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.reglas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.reglas span {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  background: #f2f2f2;
+  border: 1px solid #e1e1e1;
+  color: #900;
+}
+
+.reglas .ok {
+  background: #c6f5c6;
+  border-color: #9ae79a;
+  color: #0a6f0a;
 }

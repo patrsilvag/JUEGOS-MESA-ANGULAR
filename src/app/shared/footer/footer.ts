@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-footer',
   standalone: true,
   templateUrl: './footer.html',
-  styleUrls: ['./footer.scss'], // ← corregido (plural)
+  styleUrls: ['./footer.scss'],
 })
-export class FooterComponent {} // ← renombrado para seguir la convención
+export class FooterComponent {}

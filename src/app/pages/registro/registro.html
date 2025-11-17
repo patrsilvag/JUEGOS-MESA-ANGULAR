@@ -42,7 +42,7 @@
 
     <!-- REGLAS -->
     <div class="reglas" *ngIf="campo('clave').touched">
-      <span [class.ok]="!campo('clave').errors?.['minLength']">Mín. 6</span>
+      <span [class.ok]="!campo('clave').errors?.['minlength']">Mín. 6</span>
       <span [class.ok]="!campo('clave').errors?.['uppercase']">Mayúscula</span>
       <span [class.ok]="!campo('clave').errors?.['number']">Número</span>
       <span [class.ok]="!campo('clave').errors?.['special']">Especial</span>

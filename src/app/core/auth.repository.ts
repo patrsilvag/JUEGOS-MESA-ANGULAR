@@ -1,123 +1,80 @@
-// =====================================================
-// AUTH REPOSITORY (LocalStorage + Hash + CRUD Usuarios)
-// =====================================================
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Usuario } from './auth';
 
-export interface User {
-  email: string;
-  nombreUsuario: string;
-  nombreCompleto: string;
-  fechaNacimiento?: string;
-  direccion?: string;
-  passwordHash: string;
-  role: Role;
-  status: 'active' | 'inactive';
-}
+@Injectable({ providedIn: 'root' })
+export class AuthRepository {
+  private isBrowser: boolean;
 
-export type Role = 'admin' | 'cliente';
-
-export const ROLES = {
-  ADMIN: 'admin' as Role,
-  CLIENTE: 'cliente' as Role,
-};
-
-// Helpers de LocalStorage
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
+  constructor(@Inject(PLATFORM_ID) platformId: any) {
+    this.isBrowser = isPlatformBrowser(platformId);
+    if (this.isBrowser) this.seedAdmin();
   }
-}
 
-function write(key: string, value: any) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+  // ==========================================
+  // CREAR ADMIN POR DEFECTO
+  // ==========================================
+  private seedAdmin() {
+    const lista = this.listarUsuarios();
+    if (lista.length > 0) return;
 
-// CRUD Usuarios
-export function getUsers(): User[] {
-  return read<User[]>('users', []);
-}
+    const admin: Usuario = {
+      nombre: 'Administrador',
+      usuario: 'admin',
+      correo: 'admin@local.com',
+      fechaNacimiento: '1990-01-01',
+      direccion: '',
+      clave: 'Admin123!',
+      rol: 'admin',
+    };
 
-export function saveUsers(lista: User[]) {
-  write('users', lista);
-}
-
-export function findUserByEmail(email: string): User | undefined {
-  return getUsers().find((u) => u.email === email);
-}
-
-export function findUserByUsername(username: string): User | undefined {
-  return getUsers().find((u) => u.nombreUsuario === username);
-}
-
-export function addUser(user: User) {
-  const users = getUsers();
-  users.push(user);
-  saveUsers(users);
-}
-
-export function updateUser(user: User) {
-  const users = getUsers();
-  const index = users.findIndex((u) => u.email === user.email);
-  if (index !== -1) {
-    users[index] = user;
-    saveUsers(users);
+    this.guardarUsuarios([admin]);
   }
-}
 
-// Sesión
-export function getCurrentUser(): User | null {
-  return read<User | null>('currentUser', null);
-}
+  // ==========================================
+  // LOCALSTORAGE CRUD
+  // ==========================================
+  private listarUsuarios(): Usuario[] {
+    if (!this.isBrowser) return [];
+    return JSON.parse(localStorage.getItem('usuarios') ?? '[]');
+  }
 
-export function setCurrentUser(user: User | null) {
-  write('currentUser', user);
-}
+  private guardarUsuarios(lista: Usuario[]) {
+    if (!this.isBrowser) return;
+    localStorage.setItem('usuarios', JSON.stringify(lista));
+  }
 
-// Reset Codes
-export function setResetCode(email: string, code: string) {
-  const codes = read<Record<string, string>>('resetCodes', {});
-  codes[email] = code;
-  write('resetCodes', codes);
-}
+  registrar(user: Usuario): boolean {
+    const lista = this.listarUsuarios();
 
-export function getResetCode(email: string) {
-  const codes = read<Record<string, string>>('resetCodes', {});
-  return codes[email] || null;
-}
+    if (lista.some((u) => u.correo === user.correo)) return false;
 
-export function clearResetCode(email: string) {
-  const codes = read<Record<string, string>>('resetCodes', {});
-  delete codes[email];
-  write('resetCodes', codes);
-}
+    lista.push(user);
+    this.guardarUsuarios(lista);
+    return true;
+  }
 
-// SHA256
-export async function sha256(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
+  login(correo: string, clave: string): Usuario | null {
+    return this.listarUsuarios().find((u) => u.correo === correo && u.clave === clave) ?? null;
+  }
 
-// Semilla del administrador
-export async function ensureAdminSeed() {
-  const exist = findUserByEmail('admin@local.com');
-  if (exist) return;
+  actualizar(data: Usuario): boolean {
+    const lista = this.listarUsuarios();
+    const index = lista.findIndex((u) => u.correo === data.correo);
+    if (index === -1) return false;
 
-  const passwordHash = await sha256('Admin123!');
+    lista[index] = { ...lista[index], ...data, correo: lista[index].correo };
+    this.guardarUsuarios(lista);
+    return true;
+  }
 
-  const admin: User = {
-    email: 'admin@local.com',
-    nombreUsuario: 'admin',
-    nombreCompleto: 'Administrador',
-    passwordHash,
-    role: ROLES.ADMIN,
-    status: 'active',
-  };
+  cambiarClave(correo: string, nueva: string): boolean {
+    const lista = this.listarUsuarios();
+    const index = lista.findIndex((u) => u.correo === correo);
+    if (index === -1) return false;
 
-  addUser(admin);
+    lista[index].clave = nueva;
+    this.guardarUsuarios(lista);
+    return true;
+  }
 }
