@@ -1,9 +1,7 @@
 <section class="form-container">
-
   <h2 class="form-title">Iniciar sesión</h2>
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-
     <!-- CORREO (antes usuario, ahora login por correo) -->
     <div class="form-group">
       <label>Correo electrónico:</label>
@@ -27,13 +25,7 @@
           class="form-control"
           formControlName="clave"
         />
-        <button
-          type="button"
-          class="btn-ojo"
-          (click)="verClave = !verClave"
-        >
-          👁️
-        </button>
+        <button type="button" class="btn-ojo" (click)="verClave = !verClave">👁️</button>
       </div>
       <small *ngIf="campo('clave').touched && campo('clave').invalid" class="error">
         La contraseña es obligatoria.
@@ -46,18 +38,14 @@
     </p>
 
     <!-- BOTÓN LOGIN -->
-    <button type="submit" class="btn-primary mt-3">
-      Ingresar
-    </button>
+    <button type="submit" class="btn-primary mt-3">Ingresar</button>
 
     <!-- LINKS -->
-    <p class="text-center mt-3">
-      <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+    <p class="text-center">
+      <a routerLink="/recuperar" class="link-button">¿Olvidaste tu contraseña?</a>
     </p>
     <p class="text-center">
-      <a routerLink="/registro">¿No tienes cuenta? Regístrate</a>
+      <a routerLink="/registro" class="link-button">¿No tienes cuenta? Regístrate</a>
     </p>
-
   </form>
-
 </section>
