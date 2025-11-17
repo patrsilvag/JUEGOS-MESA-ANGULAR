@@ -5,8 +5,8 @@
 // ===============================
 .form-container {
   max-width: 650px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 1.5rem auto; /* Reducir margen superior e inferior */
+  padding: 1.5rem;   /* Reducir el padding de 2rem a 1.5rem */
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.08);
@@ -18,34 +18,34 @@
 .form-title {
   text-align: center;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Reducir el espacio después del título */
   color: #111;
 }
 
 // ===============================
-// GRID RESPONSIVE 2 COLS
+// GRID RESPONSIVE 3 COLS
 // ===============================
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr;  // MOBILE FIRST
-  gap: 1rem;
+  gap: 0.8rem; /* Reducir el espacio entre los campos de 1rem a 0.8rem */
 
   // en pantallas medianas o más → 3 columnas
-  @media (min-width: 600px) { // <-- Mantener el mismo breakpoint si lo deseas, o cambiar a uno mayor
-    grid-template-columns: 1fr 1fr 1fr; // <--- CAMBIAR ESTO: de 1fr 1fr a 1fr 1fr 1fr
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   .full {
     grid-column: span 1;
 
     @media (min-width: 600px) {
-      grid-column: span 3; // <--- CAMBIAR ESTO: de span 2 a span 3
+      grid-column: span 3;
     }
   }
 }
 
 // ===============================
-// FORM GROUP
+// FORM GROUP (Ajustar labels y inputs)
 // ===============================
 .form-group {
   display: flex;
@@ -53,25 +53,20 @@
 
   label {
     font-weight: 600;
-    margin-bottom: .25rem;
+    margin-bottom: .15rem; /* Reducir el espacio entre label y input */
   }
 
   input {
-    padding: .55rem .75rem;
+    padding: .4rem .75rem; /* Reducir la altura del input de .55rem a .4rem */
     border-radius: 8px;
     border: 1px solid #dcdcdc;
     font-size: 0.95rem;
     background: #fff;
   }
-
-  input:disabled {
-    background: #e9ecef;
-    cursor: not-allowed;
-  }
-}
+// ... (resto del código)
 
 // ===============================
-// BOTONES
+// BOTONES (Ajustar el margen superior del botón de Guardar Cambios)
 // ===============================
 .btn-primary {
   width: 100%;
@@ -146,6 +141,7 @@
 // SEPARADOR HR
 // ===============================
 hr {
-  margin: 2rem 0;
+  margin: 1.5rem 0; /* Reducir el espacio alrededor del separador */
   border-color: #ddd;
+}
 }

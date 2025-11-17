@@ -61,4 +61,11 @@ export class AuthService {
     const lista = JSON.parse(localStorage.getItem('usuarios') ?? '[]');
     return lista.find((u: Usuario) => u.correo === correo) ?? null;
   }
+  listarUsuarios() {
+    return this.repo.listarUsuarios();
+  }
+
+  actualizarEstado(correo: string, estado: 'active' | 'inactive') {
+    return this.repo.actualizarEstado(correo, estado);
+  }
 }

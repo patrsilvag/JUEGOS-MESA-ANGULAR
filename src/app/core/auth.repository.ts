@@ -15,7 +15,7 @@ export class AuthRepository {
   // CREAR ADMIN POR DEFECTO
   // ==========================================
   private seedAdmin() {
-    const lista = this.listarUsuarios();
+    const lista = this.listarUsuariosPrivado();
     if (lista.length > 0) return;
 
     const admin: Usuario = {
@@ -26,15 +26,16 @@ export class AuthRepository {
       direccion: '',
       clave: 'Admin123!',
       rol: 'admin',
+      status: 'active',
     };
-
-    this.guardarUsuarios([admin]);
+    lista.push(admin);
+    this.guardarUsuarios(lista);
   }
 
   // ==========================================
-  // LOCALSTORAGE CRUD
+  // LOCALSTORAGE CRUD (privados)
   // ==========================================
-  private listarUsuarios(): Usuario[] {
+  private listarUsuariosPrivado(): Usuario[] {
     if (!this.isBrowser) return [];
     return JSON.parse(localStorage.getItem('usuarios') ?? '[]');
   }
@@ -44,9 +45,28 @@ export class AuthRepository {
     localStorage.setItem('usuarios', JSON.stringify(lista));
   }
 
-  registrar(user: Usuario): boolean {
-    const lista = this.listarUsuarios();
+  // ==========================================
+  // MÉTODOS PÚBLICOS AGREGADOS
+  // ==========================================
+  listarUsuarios(): Usuario[] {
+    return this.listarUsuariosPrivado();
+  }
 
+  actualizarEstado(correo: string, estado: 'active' | 'inactive'): boolean {
+    const lista = this.listarUsuariosPrivado();
+    const index = lista.findIndex((u) => u.correo === correo);
+    if (index === -1) return false;
+
+    lista[index].status = estado;
+    this.guardarUsuarios(lista);
+    return true;
+  }
+
+  // ==========================================
+  // RESTO DE MÉTODOS EXISTENTES (sin cambios)
+  // ==========================================
+  registrar(user: Usuario): boolean {
+    const lista = this.listarUsuariosPrivado();
     if (lista.some((u) => u.correo === user.correo)) return false;
 
     lista.push(user);
@@ -55,11 +75,13 @@ export class AuthRepository {
   }
 
   login(correo: string, clave: string): Usuario | null {
-    return this.listarUsuarios().find((u) => u.correo === correo && u.clave === clave) ?? null;
+    return (
+      this.listarUsuariosPrivado().find((u) => u.correo === correo && u.clave === clave) ?? null
+    );
   }
 
   actualizar(data: Usuario): boolean {
-    const lista = this.listarUsuarios();
+    const lista = this.listarUsuariosPrivado();
     const index = lista.findIndex((u) => u.correo === data.correo);
     if (index === -1) return false;
 
@@ -69,7 +91,7 @@ export class AuthRepository {
   }
 
   cambiarClave(correo: string, nueva: string): boolean {
-    const lista = this.listarUsuarios();
+    const lista = this.listarUsuariosPrivado();
     const index = lista.findIndex((u) => u.correo === correo);
     if (index === -1) return false;
 

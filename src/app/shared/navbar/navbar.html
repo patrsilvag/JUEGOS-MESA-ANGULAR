@@ -17,14 +17,12 @@
     <div class="collapse navbar-collapse" id="menu">
       <ul class="navbar-nav ms-auto align-items-lg-center">
 
-        <!-- HOME -->
         <li class="nav-item">
           <a class="nav-link" routerLink="/" routerLinkActive="active">
             Inicio
           </a>
         </li>
 
-        <!-- CATEGORÍAS -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
             Categorías
@@ -38,7 +36,6 @@
           </ul>
         </li>
 
-        <!-- SI NO HAY USUARIO -->
         <ng-container *ngIf="!usuario">
           <li class="nav-item">
             <a class="nav-link" routerLink="/login">Iniciar sesión</a>
@@ -49,7 +46,6 @@
           </li>
         </ng-container>
 
-        <!-- SI HAY USUARIO -->
         <ng-container *ngIf="usuario">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -57,10 +53,18 @@
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
+              
               <li>
                 <a class="dropdown-item" routerLink="/perfil">Mi perfil</a>
               </li>
 
+              <ng-container *ngIf="usuario.rol === 'admin'">
+                <li>
+                  <a class="dropdown-item" routerLink="/admin">
+                    <i class="bi bi-gear"></i> Panel Admin
+                  </a>
+                </li>
+              </ng-container>
               <li><hr class="dropdown-divider" /></li>
 
               <li>
@@ -72,7 +76,6 @@
           </li>
         </ng-container>
 
-        <!-- CARRITO -->
         <li class="nav-item ms-lg-3">
           <a routerLink="/carrito" class="btn btn-outline-light position-relative">
             <i class="bi bi-cart"></i> Carrito
@@ -86,9 +89,7 @@
             </span>
           </a>
         </li>
-
       </ul>
     </div>
-
   </div>
 </nav>

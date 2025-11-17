@@ -6,5 +6,6 @@ export interface Usuario {
   direccion?: string;
   clave: string;
   rol: 'admin' | 'cliente';
+  status?: 'active' | 'inactive'; /** Indicador de si el usuario está activo o desactivado */
 }
 

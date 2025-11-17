@@ -1,0 +1,108 @@
+// IMPORTA form-base 
+@use '../../styles/form-base.scss';
+
+// ========================================
+//  WRAPPER PRINCIPAL (ancho reducido)
+// ========================================
+.admin-wrapper {
+  max-width: 900px;     // <= Personalizable
+  margin: 0 auto;       // Centrado horizontal
+  padding: 1rem;        // Espaciado mobile-first
+
+  @media (min-width: 992px) {
+    max-width: 850px;   // Un poco más estrecho en desktop grande
+  }
+}
+
+// ========================================
+//  TITULO Y CONTENEDOR
+// ========================================
+.admin-container {
+  h1 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// ========================================
+//  TABLA RESPONSIVE MOBILE FIRST
+// ========================================
+#tabla-usuarios {
+  width: 100%;
+
+  // Móvil: tabla en formato "cards"
+  thead {
+    display: none;
+  }
+
+  tr {
+    display: block;
+    border: 1px solid #e3e3e3;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    background: #fff;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      margin-right: 1rem;
+      color: #555;
+      flex-shrink: 0;
+    }
+  }
+
+  // Desktop: tabla tradicional
+  @media (min-width: 768px) {
+    thead {
+      display: table-header-group;
+    }
+
+    tr {
+      display: table-row;
+      border: none;
+      border-radius: 0;
+      margin-bottom: 0;
+      padding: 0;
+    }
+
+    td,
+    th {
+      display: table-cell;
+      padding: 0.75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #ececec;
+    }
+
+    td::before {
+      content: none;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+  }
+}
+
+// ========================================
+//  BADGES
+// ========================================
+.badge {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+}
+
+// ========================================
+//  BOTONES
+// ========================================
+button.btn {
+  min-width: 110px;
+  font-size: 0.8rem;
+}

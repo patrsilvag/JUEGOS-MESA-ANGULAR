@@ -1,0 +1,50 @@
+<div class="container-md admin-wrapper">
+  <section class="admin-container">
+    <h1 class="h4 mb-3">Panel de administración</h1>
+
+    <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
+
+    <div class="card shadow-sm" *ngIf="!error">
+      <div class="card-body">
+        <table id="tabla-usuarios" class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Correo</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let u of usuarios">
+              <td data-label="Correo">{{ u.correo }}</td>
+              <td data-label="Usuario">{{ u.usuario }}</td>
+              <td data-label="Rol">{{ u.rol }}</td>
+              <td data-label="Estado">
+                <span
+                  class="badge"
+                  [class.text-bg-success]="u.status === 'active'"
+                  [class.text-bg-secondary]="u.status === 'inactive'"
+                >
+                  {{ u.status === 'active' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td data-label="Acciones" class="text-end">
+                <button
+                  class="btn btn-sm"
+                  [class.btn-outline-danger]="u.status === 'active'"
+                  [class.btn-outline-success]="u.status === 'inactive'"
+                  (click)="toggleEstado(u)"
+                >
+                  {{ u.status === 'active' ? 'Desactivar' : 'Activar' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
