@@ -1,13 +1,62 @@
 <div class="container-md admin-wrapper">
+
   <section class="admin-container">
     <h1 class="h4 mb-3">Panel de administración</h1>
 
-    <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
+    <!-- ERROR -->
+    <div *ngIf="error" class="alert alert-danger text-center">
+      {{ error }}
+    </div>
 
-    <div class="card shadow-sm" *ngIf="!error">
-      <div class="card-body">
-        <table id="tabla-usuarios" class="table table-hover align-middle">
-          <thead>
+    <!-- FORMULARIO REACTIVO -->
+    <form [formGroup]="filtroForm" class="row g-2 mb-4">
+
+      <div class="col-md-4">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Filtrar por correo"
+          formControlName="correo"
+        />
+        <small class="text-danger" *ngIf="filtroForm.get('correo')?.invalid">
+          Formato de correo inválido
+        </small>
+      </div>
+
+      <div class="col-md-3">
+        <select class="form-select" formControlName="rol">
+          <option value="">Rol (todos)</option>
+          <option value="admin">Administrador</option>
+          <option value="cliente">cliente</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select class="form-select" formControlName="estado">
+          <option value="">Estado (todos)</option>
+          <option value="active">Activo</option>
+          <option value="inactive">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button
+          type="button"
+          class="btn btn-secondary w-100"
+          (click)="filtroForm.reset()"
+        >
+          Limpiar
+        </button>
+      </div>
+
+    </form>
+
+    <!-- TABLA -->
+    <div class="card shadow-sm" *ngIf="usuariosFiltrados.length > 0">
+      <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
             <tr>
               <th>Correo</th>
               <th>Usuario</th>
@@ -18,11 +67,13 @@
           </thead>
 
           <tbody>
-            <tr *ngFor="let u of usuarios">
-              <td data-label="Correo">{{ u.correo }}</td>
-              <td data-label="Usuario">{{ u.usuario }}</td>
-              <td data-label="Rol">{{ u.rol }}</td>
-              <td data-label="Estado">
+            <tr *ngFor="let u of usuariosFiltrados">
+
+              <td>{{ u.correo }}</td>
+              <td>{{ u.usuario }}</td>
+              <td>{{ u.rol }}</td>
+
+              <td>
                 <span
                   class="badge"
                   [class.text-bg-success]="u.status === 'active'"
@@ -31,7 +82,8 @@
                   {{ u.status === 'active' ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
-              <td data-label="Acciones" class="text-end">
+
+              <td class="text-end">
                 <button
                   class="btn btn-sm"
                   [class.btn-outline-danger]="u.status === 'active'"
@@ -41,10 +93,19 @@
                   {{ u.status === 'active' ? 'Desactivar' : 'Activar' }}
                 </button>
               </td>
+
             </tr>
           </tbody>
+
         </table>
       </div>
     </div>
+
+    <!-- SIN RESULTADOS -->
+    <div *ngIf="usuariosFiltrados.length === 0" class="alert alert-info text-center">
+      No hay usuarios que coincidan con el filtro.
+    </div>
+
   </section>
+
 </div>

@@ -1,27 +1,52 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { Usuario } from '../../core/auth';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit {
   usuarios: Usuario[] = [];
+  usuariosFiltrados: Usuario[] = [];
+
+  filtroForm!: FormGroup;
   error: string | null = null;
 
-  constructor(private auth: AuthService) {}
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
 
   ngOnInit() {
-    try {
-      this.usuarios = this.auth.listarUsuarios(); // usa el servicio, no repo directo
-    } catch (e) {
-      this.error = 'Error cargando usuarios';
-    }
+    // Formulario reactivo
+    this.filtroForm = this.fb.group({
+      correo: ['', [Validators.email]],
+      rol: [''],
+      estado: [''],
+    });
+
+    // Cargar usuarios
+    this.usuarios = this.auth.listarUsuarios();
+
+    this.usuariosFiltrados = [...this.usuarios];
+
+    // Detectar cambios del formulario
+    this.filtroForm.valueChanges.subscribe(() => this.aplicarFiltro());
+  }
+
+  aplicarFiltro() {
+    const { correo, rol, estado } = this.filtroForm.value;
+
+    this.usuariosFiltrados = this.usuarios.filter((u) => {
+      return (
+        (!correo || u.correo.includes(correo)) &&
+        (!rol || u.rol === rol) &&
+        (!estado || u.status === estado)
+      );
+    });
   }
 
   toggleEstado(u: Usuario) {
@@ -34,6 +59,7 @@ export class AdminComponent {
       return;
     }
 
-    u.status = nuevoEstado; // reflejar en UI
+    u.status = nuevoEstado;
+    this.aplicarFiltro(); // Para actualizar la vista según el filtro
   }
 }
