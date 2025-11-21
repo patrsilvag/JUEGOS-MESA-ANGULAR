@@ -1,64 +1,50 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, JsonPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AdminService } from './admin.service';
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
   standalone: true,
-  imports: [
-    CommonModule, // Necesario para *ngIf y *ngFor
-    ReactiveFormsModule, // Necesario para formGroup, formControlName
-    JsonPipe, // Necesario para | json
-  ],
+  imports: [CommonModule, ReactiveFormsModule, JsonPipe],
 })
 export class AdminComponent implements OnInit {
   filtroForm!: FormGroup;
   usuarios: any[] = [];
   usuariosFiltrados: any[] = [];
   error: string | null = null;
-  debug = false; // Mostrar estado del formulario solo si está en true
-  
-  constructor(private fb: FormBuilder) {}
+  debug = false;
+
+  constructor(private fb: FormBuilder, private adminSrv: AdminService) {}
 
   ngOnInit() {
+    // Formulario reactivo
     this.filtroForm = this.fb.group({
       correo: ['', [Validators.email]],
       rol: [''],
       estado: [''],
     });
 
-    this.filtroForm.valueChanges.subscribe(() => this.filtrar());
-
-    this.cargarUsuarios();
-  }
-
-  cargarUsuarios() {
-    this.usuarios = [
-      { correo: 'admin@site.com', usuario: 'Admin', rol: 'admin', status: 'active' },
-      { correo: 'user@site.com', usuario: 'User', rol: 'cliente', status: 'inactive' },
-    ];
+    // Cargar datos desde el servicio
+    this.usuarios = this.adminSrv.cargarUsuarios();
     this.usuariosFiltrados = [...this.usuarios];
+
+    // Filtrar automáticamente cuando cambian los campos del formulario
+    this.filtroForm.valueChanges.subscribe(() => this.filtrar());
   }
 
   filtrar() {
-    const { correo, rol, estado } = this.filtroForm.value;
-
-    this.usuariosFiltrados = this.usuarios.filter(
-      (u) =>
-        (correo ? u.correo.includes(correo) : true) &&
-        (rol ? u.rol === rol : true) &&
-        (estado ? u.status === estado : true)
-    );
+    this.usuariosFiltrados = this.adminSrv.filtrarUsuarios(this.usuarios, this.filtroForm.value);
   }
 
   resetFiltro() {
     this.filtroForm.reset();
   }
 
-  toggleEstado(u: any) {
-    u.status = u.status === 'active' ? 'inactive' : 'active';
+  toggleEstado(usuario: any) {
+    this.adminSrv.toggleEstado(usuario);
     this.filtrar();
   }
 }
