@@ -12,8 +12,15 @@ export interface CartItem {
 @Injectable({ providedIn: 'root' })
 export class Cart {
   private items = new BehaviorSubject<CartItem[]>([]);
-
   carrito$ = this.items.asObservable();
+
+  // 🔹 DESCUENTO GLOBAL (porcentaje)
+  private descuento = 0;
+
+  // 🔹 Aplicar descuento (llamado desde el formulario reactivo)
+  aplicarDescuento(porcentaje: number) {
+    this.descuento = porcentaje;
+  }
 
   // 🔹 Agregar al carrito
   agregar(p: CartItem) {
@@ -57,14 +64,17 @@ export class Cart {
     this.items.next(actual);
   }
 
-  // 🔹 Limpiar carrito
+  // 🔹 Limpiar carrito (resetea descuento también)
   limpiar() {
     this.items.next([]);
+    this.descuento = 0;
   }
 
-  // 🔹 Total general
+  // 🔹 Total general (YA INCLUYE DESCUENTO)
   total() {
-    return this.items.value.reduce((sum, p) => sum + p.cantidad * p.precio, 0);
+    const base = this.items.value.reduce((sum, p) => sum + p.cantidad * p.precio, 0);
+
+    return base - (base * this.descuento) / 100;
   }
 
   // 🔹 Envío basado en subtotal

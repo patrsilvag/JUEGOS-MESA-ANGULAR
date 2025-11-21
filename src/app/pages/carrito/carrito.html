@@ -8,12 +8,12 @@
 <main class="container my-4">
 
   <!-- Carrito vacío -->
-  <div class="alert alert-info text-center" *ngIf="carritoLista.length === 0">
+  <div class="alert alert-info text-center" *ngIf="(carritoLista?.length ?? 0) === 0">
     Tu carrito está vacío.
   </div>
 
   <!-- Carrito con productos -->
-  <div class="row gy-4" *ngIf="carritoLista.length > 0">
+  <div class="row gy-4" *ngIf="(carritoLista?.length ?? 0) > 0">
 
     <!-- ============================
          MOBILE (<768px) - CARDS
@@ -34,27 +34,24 @@
         <div class="item-row">
           <span class="label">Cantidad</span>
           <div class="cantidad-controls">
-            <button (click)="cart.restar(p.id)">−</button>
+            <button (click)="restar(p.id)">−</button>
             <span>{{ p.cantidad }}</span>
-            <button (click)="cart.sumar(p.id)">+</button>
+            <button (click)="sumar(p.id)">+</button>
           </div>
         </div>
 
         <div class="item-row">
           <span class="label">Subtotal</span>
-          <span class="value fw-bold">
-            $ {{ p.cantidad * p.precio | number }}
-          </span>
+          <span class="value fw-bold">$ {{ p.cantidad * p.precio | number }}</span>
         </div>
 
-        <button class="btn-eliminar" (click)="cart.quitarProducto(p.id)">
-          Eliminar
-        </button>
+        <button class="btn-eliminar" (click)="quitar(p.id)">Eliminar</button>
+
       </div>
     </div>
 
     <!-- ============================
-         TABLET / DESKTOP (≥768px) - TABLA
+         TABLET / DESKTOP (≥768px)
          ============================ -->
     <div class="col-12 col-lg-8 d-none d-md-block">
       <div class="card shadow-sm p-0">
@@ -75,21 +72,21 @@
                   <img [src]="p.imagen" [alt]="p.nombre" />
                   <span>{{ p.nombre }}</span>
                 </td>
+
                 <td class="text-end">$ {{ p.precio | number }}</td>
+
                 <td class="text-center">
                   <div class="cantidad-controls">
-                    <button (click)="cart.restar(p.id)">−</button>
+                    <button (click)="restar(p.id)">−</button>
                     <span>{{ p.cantidad }}</span>
-                    <button (click)="cart.sumar(p.id)">+</button>
+                    <button (click)="sumar(p.id)">+</button>
                   </div>
                 </td>
-                <td class="text-end fw-bold">
-                  $ {{ p.cantidad * p.precio | number }}
-                </td>
+
+                <td class="text-end fw-bold">$ {{ p.cantidad * p.precio | number }}</td>
+
                 <td class="text-center">
-                  <button class="btn-eliminar" (click)="cart.quitarProducto(p.id)">
-                    Eliminar
-                  </button>
+                  <button class="btn-eliminar" (click)="quitar(p.id)">Eliminar</button>
                 </td>
               </tr>
             </tbody>
@@ -98,16 +95,35 @@
       </div>
     </div>
 
-    <!-- Resumen -->
+    <!-- ============================
+         RESUMEN + CUPÓN INTEGRADO
+         ============================ -->
     <div class="col-12 col-lg-4">
       <div class="resumen-box">
+
         <h3>Resumen</h3>
 
+        <!-- SUBTOTAL ORIGINAL -->
         <div class="linea">
           <span>Subtotal:</span>
+          <strong>$ {{ subtotalOriginal() | number }}</strong>
+        </div>
+
+        <!-- DESCUENTO (solo si existe) -->
+        <div class="linea" *ngIf="subtotalOriginal() !== total()">
+          <span>Descuento:</span>
+          <strong class="text-success">
+            - $ {{ (subtotalOriginal() - total()) | number }}
+          </strong>
+        </div>
+
+        <!-- SUBTOTAL FINAL (con descuento) -->
+        <div class="linea">
+          <span>Subtotal con descuento:</span>
           <strong>$ {{ total() | number }}</strong>
         </div>
 
+        <!-- ENVÍO -->
         <div class="linea">
           <span>Envío:</span>
           <strong>$ {{ envio() | number }}</strong>
@@ -115,14 +131,53 @@
 
         <hr />
 
+        <!-- FORMULARIO CUPÓN -->
+        <form [formGroup]="cuponForm" (ngSubmit)="aplicarCupon()" class="row g-2">
+
+          <div class="col-12">
+            <input 
+              type="text"
+              formControlName="codigoDescuento"
+              class="form-control"
+              placeholder="Ingresa tu cupón"
+            />
+            <small class="text-danger"
+              *ngIf="
+                cuponForm.get('codigoDescuento')?.invalid &&
+                cuponForm.get('codigoDescuento')?.dirty
+              ">
+              Debe tener al menos 4 caracteres.
+            </small>
+          </div>
+
+          <div class="col-6">
+            <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+          </div>
+
+          <div class="col-6">
+            <button type="button" class="btn btn-secondary w-100" (click)="limpiarCupon()">
+              Limpiar
+            </button>
+          </div>
+
+          <div *ngIf="mensajeCupon" class="alert alert-info mt-2">
+            {{ mensajeCupon }}
+          </div>
+
+        </form>
+
+        <hr />
+
+        <!-- TOTAL FINAL -->
         <div class="linea total-final">
           <strong>Total:</strong>
           <strong>$ {{ totalFinal() | number }}</strong>
         </div>
 
-        <button class="btn-vaciar" (click)="cart.limpiar()">
+        <button class="btn-vaciar mt-2" (click)="limpiarCarrito()">
           Vaciar carrito
         </button>
+
       </div>
     </div>
 
