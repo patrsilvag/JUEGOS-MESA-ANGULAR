@@ -1,33 +1,21 @@
-<div class="container-md admin-wrapper">
+<!-- Cleaned Mobile-First Admin HTML -->
+<div class="admin-wrapper">
   <section class="admin-container">
     <h1 class="h4 mb-3">Panel de administración</h1>
 
     <!-- ERROR GENERAL -->
-    <div *ngIf="error" class="alert alert-danger text-center">
-      {{ error }}
-    </div>
+    <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
 
     <!-- FORMULARIO REACTIVO -->
     <form [formGroup]="filtroForm" class="row g-3 mb-4">
       <!-- CORREO -->
-      <div class="col-md-4">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Filtrar por correo"
-          formControlName="correo"
-        />
-
-        <small
-          class="text-danger"
-          *ngIf="filtroForm.get('correo')?.invalid && filtroForm.get('correo')?.touched"
-        >
-          Formato de correo inválido
-        </small>
+      <div class="col-12 col-md-4">
+        <input type="text" class="form-control" placeholder="Filtrar por correo" formControlName="correo" />
+        <small class="text-danger" *ngIf="filtroForm.get('correo')?.invalid && filtroForm.get('correo')?.touched">Formato de correo inválido</small>
       </div>
 
       <!-- ROL -->
-      <div class="col-md-3">
+      <div class="col-12 col-md-3">
         <select class="form-select" formControlName="rol">
           <option value="">Rol (todos)</option>
           <option value="admin">Administrador</option>
@@ -36,7 +24,7 @@
       </div>
 
       <!-- ESTADO -->
-      <div class="col-md-3">
+      <div class="col-12 col-md-3">
         <select class="form-select" formControlName="estado">
           <option value="">Estado (todos)</option>
           <option value="active">Activo</option>
@@ -45,18 +33,16 @@
       </div>
 
       <!-- LIMPIAR -->
-      <div class="col-md-2">
-        <button type="button" class="btn btn-secondary w-100" (click)="resetFiltro()">
-          Limpiar
-        </button>
+      <div class="col-12 col-md-2">
+        <button type="button" class="btn btn-secondary w-100" (click)="resetFiltro()">Limpiar</button>
       </div>
 
-      <!-- ESTADO DEL FORMULARIO (obligatorio para tu evaluación) -->
-      <div class="col-12">
-        <div *ngIf="debug" class="p-2 bg-light border rounded small">
+      <!-- DEBUG -->
+      <div class="col-12" *ngIf="debug">
+        <div class="form-state-box">
           <strong>Estado del formulario:</strong>
-          <pre class="m-0">{{ filtroForm.value | json }}</pre>
-          <pre class="m-0">{{ filtroForm.status | json }}</pre>
+          <pre>{{ filtroForm.value | json }}</pre>
+          <pre>Status: {{ filtroForm.status }}</pre>
         </div>
       </div>
     </form>
@@ -75,30 +61,18 @@
                 <th class="text-end">Acciones</th>
               </tr>
             </thead>
-
             <tbody>
               <tr *ngFor="let u of usuariosFiltrados">
                 <td>{{ u.correo }}</td>
                 <td>{{ u.usuario }}</td>
                 <td>{{ u.rol }}</td>
-
                 <td>
-                  <span
-                    class="badge"
-                    [class.text-bg-success]="u.status === 'active'"
-                    [class.text-bg-secondary]="u.status === 'inactive'"
-                  >
+                  <span class="badge" [class.text-bg-success]="u.status === 'active'" [class.text-bg-secondary]="u.status === 'inactive'">
                     {{ u.status === 'active' ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
-
                 <td class="text-end">
-                  <button
-                    class="btn btn-sm"
-                    [class.btn-outline-danger]="u.status === 'active'"
-                    [class.btn-outline-success]="u.status === 'inactive'"
-                    (click)="toggleEstado(u)"
-                  >
+                  <button class="btn btn-sm" [class.btn-outline-danger]="u.status === 'active'" [class.btn-outline-success]="u.status === 'inactive'" (click)="toggleEstado(u)">
                     {{ u.status === 'active' ? 'Desactivar' : 'Activar' }}
                   </button>
                 </td>
@@ -113,5 +87,6 @@
     <div *ngIf="usuariosFiltrados.length === 0" class="alert alert-info text-center">
       No hay usuarios que coincidan con el filtro.
     </div>
+
   </section>
 </div>
