@@ -7,6 +7,9 @@ import {
   ReactiveFormsModule,
   AbstractControl,
 } from '@angular/forms';
+
+import { ValidatorsService } from '../../core/validators.service';
+import { UserService } from '../../core/user.service';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
@@ -27,15 +30,17 @@ export class PerfilComponent implements OnInit {
   formDatos!: FormGroup;
   formClave!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService) {}
+  constructor(
+    private fb: FormBuilder,
+    private validators: ValidatorsService,
+    private userSrv: UserService,
+    private authSrv: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // Ahora sí puedes usar this.auth
-    this.usuario = this.auth.getUsuarioActual();
+    this.usuario = this.authSrv.getUsuarioActual();
 
-    // ================
-    // FORM DATOS
-    // ================
+    // FORMULARIO DE DATOS
     this.formDatos = this.fb.group({
       nombre: [this.usuario?.nombre ?? '', Validators.required],
       usuario: [this.usuario?.usuario ?? '', Validators.required],
@@ -44,9 +49,7 @@ export class PerfilComponent implements OnInit {
       direccion: [this.usuario?.direccion ?? ''],
     });
 
-    // ================
-    // FORM CLAVE
-    // ================
+    // FORMULARIO DE CLAVES
     this.formClave = this.fb.group(
       {
         claveActual: ['', Validators.required],
@@ -55,20 +58,19 @@ export class PerfilComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(6),
-            this.uppercaseValidator(),
-            this.numberValidator(),
-            this.specialValidator(),
+            this.validators.uppercaseValidator(),
+            this.validators.numberValidator(),
+            this.validators.specialValidator(),
           ],
         ],
         repetirClave: ['', Validators.required],
       },
-      { validators: this.coincidenClaves() }
+      {
+        validators: this.validators.coincidenClaves('nuevaClave', 'repetirClave'),
+      }
     );
   }
 
-  // ================================
-  // GETTERS
-  // ================================
   fcDatos(nombre: string): AbstractControl {
     return this.formDatos.get(nombre)!;
   }
@@ -77,70 +79,51 @@ export class PerfilComponent implements OnInit {
     return this.formClave.get(nombre)!;
   }
 
-  // ================================
-  // VALIDADORES
-  // ================================
-  uppercaseValidator() {
-    return (c: AbstractControl) => (/[A-Z]/.test(c.value || '') ? null : { uppercase: true });
-  }
-
-  numberValidator() {
-    return (c: AbstractControl) => (/[0-9]/.test(c.value || '') ? null : { number: true });
-  }
-
-  specialValidator() {
-    return (c: AbstractControl) => (/[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true });
-  }
-
-  coincidenClaves() {
-    return (group: AbstractControl) => {
-      const c1 = group.get('nuevaClave')?.value;
-      const c2 = group.get('repetirClave')?.value;
-      return c1 === c2 ? null : { noCoinciden: true };
-    };
-  }
-
-  // ================================
-  // GUARDAR DATOS PERSONALES
-  // ================================
+  // ==============================================
+  //   GUARDAR DATOS PERSONALES
+  // ==============================================
   guardarDatos() {
-    if (this.formDatos.invalid) return this.formDatos.markAllAsTouched();
+    if (this.formDatos.invalid) {
+      this.formDatos.markAllAsTouched();
+      return;
+    }
 
     const data = {
       ...this.usuario,
-      ...this.formDatos.getRawValue(), // correo incluido aunque disabled
+      ...this.formDatos.getRawValue(),
     };
 
-    this.auth.actualizarUsuario(data);
-    this.usuario = data;
+    const ok = this.userSrv.actualizarPerfil(data);
 
-    this.mensajeExito = true;
-    setTimeout(() => (this.mensajeExito = false), 2500);
+    if (ok) {
+      this.usuario = data;
+      this.mensajeExito = true;
+      setTimeout(() => (this.mensajeExito = false), 2500);
+    }
   }
 
-  // ================================
-  // CAMBIAR CONTRASEÑA
-  // ================================
+  // ==============================================
+  //   CAMBIAR CONTRASEÑA
+  // ==============================================
   actualizarClave() {
     if (this.formClave.invalid) {
       this.formClave.markAllAsTouched();
       return;
     }
 
-    // 1) Validar coincidencia
-    if (this.formClave.value.nuevaClave !== this.formClave.value.repetirClave) {
-      this.formClave.setErrors({ noCoinciden: true });
-      return;
-    }
+    // Validar clave actual desde UserService
+    const esCorrecta = this.userSrv.validarClaveActual(
+      this.usuario!.correo,
+      this.formClave.value.claveActual
+    );
 
-    // 2) Validar contraseña actual manualmente
-    if (this.formClave.value.claveActual !== this.usuario!.clave) {
+    if (!esCorrecta) {
       this.formClave.setErrors({ incorrecta: true });
       return;
     }
 
-    // 3) Llamada correcta (solo 2 parámetros)
-    const ok = this.auth.cambiarClave(this.usuario!.correo, this.formClave.value.nuevaClave!);
+    // Cambiar clave
+    const ok = this.userSrv.cambiarClave(this.usuario!.correo, this.formClave.value.nuevaClave);
 
     if (!ok) {
       this.formClave.setErrors({ error: true });
@@ -149,6 +132,7 @@ export class PerfilComponent implements OnInit {
 
     this.mensajeExito = true;
     this.formClave.reset();
+
     setTimeout(() => (this.mensajeExito = false), 2500);
   }
 }

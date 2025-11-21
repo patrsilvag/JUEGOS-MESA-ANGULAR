@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -7,7 +7,10 @@ import {
   FormGroup,
   AbstractControl,
 } from '@angular/forms';
-import { AuthService } from '../../core/auth.service';
+
+import { ValidatorsService } from '../../core/validators.service';
+import { UserService } from '../../core/user.service';
+import { Usuario } from '../../core/auth';
 
 @Component({
   selector: 'app-registro',
@@ -16,14 +19,18 @@ import { AuthService } from '../../core/auth.service';
   templateUrl: './registro.html',
   styleUrls: ['./registro.scss'],
 })
-export class RegistroComponent {
+export class RegistroComponent implements OnInit {
   form!: FormGroup;
   mensajeExito = false;
 
   verClave = false;
   verClave2 = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService) {}
+  constructor(
+    private fb: FormBuilder,
+    private validators: ValidatorsService,
+    private userSrv: UserService
+  ) {}
 
   ngOnInit() {
     this.form = this.fb.group(
@@ -37,77 +44,30 @@ export class RegistroComponent {
             Validators.required,
             Validators.minLength(6),
             Validators.maxLength(18),
-            this.uppercaseValidator(),
-            this.numberValidator(),
+            this.validators.uppercaseValidator(),
+            this.validators.numberValidator(),
           ],
         ],
         repetirClave: ['', Validators.required],
         fechaNacimiento: [
           '',
-          [Validators.required, this.fechaFuturaValidator(), this.edadMinimaValidator(13)],
+          [
+            Validators.required,
+            this.validators.fechaFuturaValidator(),
+            this.validators.edadMinimaValidator(13),
+          ],
         ],
         direccion: [''],
       },
-      { validators: this.coincidenClaves() }
+      {
+        validators: this.validators.coincidenClaves('clave', 'repetirClave'),
+      }
     );
   }
 
-  campo(nombre: string): AbstractControl {
+  campo(nombre: string) {
     return this.form.get(nombre)!;
   }
-
-  // Validadores personalizados
-  uppercaseValidator() {
-    return (c: AbstractControl) => (/[A-Z]/.test(c.value || '') ? null : { uppercase: true });
-  }
-  numberValidator() {
-    return (c: AbstractControl) => (/[0-9]/.test(c.value || '') ? null : { number: true });
-  }
-  specialValidator() {
-    return (c: AbstractControl) => (/[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true });
-  }
-
-  coincidenClaves() {
-    return (group: AbstractControl) =>
-      group.get('clave')?.value === group.get('repetirClave')?.value ? null : { noCoinciden: true };
-  }
-
-  fechaFuturaValidator() {
-    return (control: AbstractControl) => {
-      const valor = control.value;
-      if (!valor) return null; // si está vacío, otra validación se encarga
-
-      const fecha = new Date(valor);
-      const hoy = new Date();
-
-      // Normalizar horas para comparación exacta
-      hoy.setHours(0, 0, 0, 0);
-      fecha.setHours(0, 0, 0, 0);
-
-      return fecha > hoy ? { fechaFutura: true } : null;
-    };
-  }
-
-  edadMinimaValidator(minEdad: number) {
-    return (control: AbstractControl) => {
-      const valor = control.value;
-      if (!valor) return null;
-
-      const fechaNacimiento = new Date(valor);
-      const hoy = new Date();
-
-      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-      const mes = hoy.getMonth() - fechaNacimiento.getMonth();
-
-      // Ajustar si aún no ha cumplido años este año
-      if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
-        edad--;
-      }
-
-      return edad < minEdad ? { edadMinima: true } : null;
-    };
-  }
-
 
   limpiar() {
     this.form.reset();
@@ -119,17 +79,17 @@ export class RegistroComponent {
       return;
     }
 
-    const data = {
+    const data: Usuario = {
       nombre: this.form.value.nombre!,
       usuario: this.form.value.usuario!,
       correo: this.form.value.correo!,
       clave: this.form.value.clave!,
       fechaNacimiento: this.form.value.fechaNacimiento!,
       direccion: this.form.value.direccion || '',
-      rol: 'cliente' as const,
+      rol: 'cliente',
     };
 
-    const ok = this.auth.registrar(data);
+    const ok = this.userSrv.registrarUsuario(data);
 
     if (!ok) {
       this.form.get('correo')?.setErrors({ existe: true });
