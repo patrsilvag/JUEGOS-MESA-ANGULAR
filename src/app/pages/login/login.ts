@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, LoginResultado } from '../../core/auth.service';
+import { AuthErrorService } from '../../core/auth-error.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,12 @@ export class LoginComponent {
   verClave = false;
   errorLogin = '';
 
-  constructor(private fb: FormBuilder, private authSrv: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authSrv: AuthService,
+    private err: AuthErrorService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
       clave: ['', [Validators.required]],
@@ -32,16 +38,13 @@ export class LoginComponent {
 
     const { correo, clave } = this.form.value;
 
-    // Tipo explícito para evitar errores de TS
     const resultado: LoginResultado = this.authSrv.login(correo, clave);
 
-    // Caso de error (ok: false)
-    if (resultado.ok === false) {
+    if (!resultado.ok) {
       this.errorLogin = resultado.mensaje;
       return;
     }
 
-    // Caso de éxito (ok: true)
     this.router.navigate(['/']);
   }
 }

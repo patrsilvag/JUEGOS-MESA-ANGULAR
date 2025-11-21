@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Usuario } from './auth';
 import { AuthRepository } from './auth.repository';
+import { AuthErrorService } from './auth-error.service';
 
 export type LoginResultado = { ok: true; usuario: Usuario } | { ok: false; mensaje: string };
 
@@ -10,7 +11,7 @@ export class AuthService {
   private usuarioActual = new BehaviorSubject<Usuario | null>(null);
   usuarioActual$ = this.usuarioActual.asObservable();
 
-  constructor(private repo: AuthRepository) {
+  constructor(private repo: AuthRepository, private err: AuthErrorService) {
     this.cargarUsuarioActual();
   }
 
@@ -33,17 +34,22 @@ export class AuthService {
   }
 
   login(correo: string, clave: string): LoginResultado {
-    const email = correo.trim().toLowerCase();
-    const pass = clave.trim();
+    try {
+      const email = correo.trim().toLowerCase();
+      const pass = clave.trim();
 
-    const usuario = this.repo.login(email, pass);
+      const usuario = this.repo.login(email, pass);
 
-    if (!usuario) {
-      return { ok: false, mensaje: 'Correo o contraseña incorrecta' };
+      if (!usuario) {
+        return { ok: false, mensaje: this.err.credencialesInvalidas() };
+      }
+
+      this.guardarSesion(usuario);
+      return { ok: true, usuario };
+    } catch (error) {
+      console.error('Error en AuthService.login():', error);
+      return { ok: false, mensaje: this.err.errorInesperado() };
     }
-
-    this.guardarSesion(usuario);
-    return { ok: true, usuario };
   }
 
   logout() {
