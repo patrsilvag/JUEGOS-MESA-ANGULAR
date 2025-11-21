@@ -10,6 +10,7 @@ import {
 
 import { ValidatorsService } from '../../core/validators.service';
 import { UserService } from '../../core/user.service';
+import { AuthErrorService } from '../../core/auth-error.service';
 import { Usuario } from '../../core/auth';
 
 @Component({
@@ -29,7 +30,8 @@ export class RegistroComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private validators: ValidatorsService,
-    private userSrv: UserService
+    private userSrv: UserService,
+    private err: AuthErrorService
   ) {}
 
   ngOnInit() {
@@ -46,6 +48,7 @@ export class RegistroComponent implements OnInit {
             Validators.maxLength(18),
             this.validators.uppercaseValidator(),
             this.validators.numberValidator(),
+            this.validators.specialValidator(),
           ],
         ],
         repetirClave: ['', Validators.required],
@@ -57,7 +60,7 @@ export class RegistroComponent implements OnInit {
             this.validators.edadMinimaValidator(13),
           ],
         ],
-        direccion: [''],
+        direccion: [''], // opcional
       },
       {
         validators: this.validators.coincidenClaves('clave', 'repetirClave'),
@@ -65,7 +68,7 @@ export class RegistroComponent implements OnInit {
     );
   }
 
-  campo(nombre: string) {
+  campo(nombre: string): AbstractControl {
     return this.form.get(nombre)!;
   }
 
@@ -85,13 +88,14 @@ export class RegistroComponent implements OnInit {
       correo: this.form.value.correo!,
       clave: this.form.value.clave!,
       fechaNacimiento: this.form.value.fechaNacimiento!,
-      direccion: this.form.value.direccion || '',
+      direccion: this.form.value.direccion ?? '',
       rol: 'cliente',
     };
 
     const ok = this.userSrv.registrarUsuario(data);
 
     if (!ok) {
+      // correo ya existe
       this.form.get('correo')?.setErrors({ existe: true });
       return;
     }
