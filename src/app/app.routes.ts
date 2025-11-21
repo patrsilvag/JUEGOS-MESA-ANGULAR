@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home';
+import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -20,10 +23,12 @@ export const routes: Routes = [
   {
     path: 'perfil',
     loadComponent: () => import('./pages/perfil/perfil').then((m) => m.PerfilComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'carrito',
     loadComponent: () => import('./pages/carrito/carrito').then((m) => m.CarritoComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'categoria/:id',
@@ -39,10 +44,11 @@ export const routes: Routes = [
     loadChildren: () => import('./pages/categoria/categoria.routes').then((m) => m.categoriaRoutes),
   },
   {
-  path: 'admin',
-  loadComponent: () =>
-    import('./pages/admin/admin').then(m => m.AdminComponent),
-},
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.AdminComponent),
+    canActivate: [RoleGuard('admin')],
+  },
+
   {
     path: '**',
     redirectTo: '',
