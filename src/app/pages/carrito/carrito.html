@@ -8,98 +8,57 @@
 <main class="container my-4">
 
   <!-- Carrito vacío -->
-  <div class="alert alert-info text-center" *ngIf="(carritoLista?.length ?? 0) === 0">
+  <div class="alert alert-info text-center" *ngIf="carritoLista.length === 0">
     Tu carrito está vacío.
   </div>
 
   <!-- Carrito con productos -->
-  <div class="row gy-4" *ngIf="(carritoLista?.length ?? 0) > 0">
+  <div class="row gy-4" *ngIf="carritoLista.length > 0">
 
-    <!-- ============================
-         MOBILE (<768px) - CARDS
-         ============================ -->
-    <div class="col-12 d-block d-md-none">
-      <div *ngFor="let p of carritoLista" class="item-card">
+    <!-- LISTA UNIFICADA (Mobile → Cards / Desktop → Tabla con Grid) -->
+    <div class="col-12 col-lg-8">
+      <div class="carrito-lista">
+        
+        <div class="carrito-item" *ngFor="let p of carritoLista">
 
-        <div class="item-header">
-          <img [src]="p.imagen" [alt]="p.nombre" />
-          <h5>{{ p.nombre }}</h5>
-        </div>
+          <!-- PRODUCTO -->
+          <div class="col-producto">
+            <img [src]="p.imagen" [alt]="p.nombre" />
+            <span class="nombre">{{ p.nombre }}</span>
+          </div>
 
-        <div class="item-row">
-          <span class="label">Precio</span>
-          <span class="value">$ {{ p.precio | number }}</span>
-        </div>
+          <!-- PRECIO -->
+          <div class="col-precio">
+            $ {{ p.precio | number }}
+          </div>
 
-        <div class="item-row">
-          <span class="label">Cantidad</span>
-          <div class="cantidad-controls">
+          <!-- CANTIDAD -->
+          <div class="col-cantidad">
             <button (click)="restar(p.id)">−</button>
             <span>{{ p.cantidad }}</span>
             <button (click)="sumar(p.id)">+</button>
           </div>
-        </div>
 
-        <div class="item-row">
-          <span class="label">Subtotal</span>
-          <span class="value fw-bold">$ {{ p.cantidad * p.precio | number }}</span>
-        </div>
+          <!-- SUBTOTAL -->
+          <div class="col-subtotal">
+            $ {{ p.cantidad * p.precio | number }}
+          </div>
 
-        <button class="btn-eliminar" (click)="quitar(p.id)">Eliminar</button>
+          <!-- ACCIONES -->
+          <div class="col-acciones">
+            <button class="btn-eliminar" (click)="quitar(p.id)">
+              Eliminar
+            </button>
+          </div>
+
+        </div>
 
       </div>
     </div>
 
-    <!-- ============================
-         TABLET / DESKTOP (≥768px)
-         ============================ -->
-    <div class="col-12 col-lg-8 d-none d-md-block">
-      <div class="card shadow-sm p-0">
-        <div class="tabla-scroll">
-          <table class="table align-middle mb-0">
-            <thead class="table-dark">
-              <tr>
-                <th>Producto</th>
-                <th class="text-end">Precio</th>
-                <th class="text-center">Cant.</th>
-                <th class="text-end">Subtotal</th>
-                <th class="text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of carritoLista">
-                <td class="producto-col">
-                  <img [src]="p.imagen" [alt]="p.nombre" />
-                  <span>{{ p.nombre }}</span>
-                </td>
-
-                <td class="text-end">$ {{ p.precio | number }}</td>
-
-                <td class="text-center">
-                  <div class="cantidad-controls">
-                    <button (click)="restar(p.id)">−</button>
-                    <span>{{ p.cantidad }}</span>
-                    <button (click)="sumar(p.id)">+</button>
-                  </div>
-                </td>
-
-                <td class="text-end fw-bold">$ {{ p.cantidad * p.precio | number }}</td>
-
-                <td class="text-center">
-                  <button class="btn-eliminar" (click)="quitar(p.id)">Eliminar</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================
-         RESUMEN + CUPÓN INTEGRADO
-         ============================ -->
+    <!-- RESUMEN + FORMULARIO REACTIVO -->
     <div class="col-12 col-lg-4">
-      <div class="resumen-box">
+      <form class="resumen-box" [formGroup]="cuponForm" (ngSubmit)="aplicarCupon()">
 
         <h3>Resumen</h3>
 
@@ -109,15 +68,15 @@
           <strong>$ {{ subtotalOriginal() | number }}</strong>
         </div>
 
-        <!-- DESCUENTO (solo si existe) -->
+        <!-- DESCUENTO -->
         <div class="linea" *ngIf="subtotalOriginal() !== total()">
           <span>Descuento:</span>
           <strong class="text-success">
-            - $ {{ (subtotalOriginal() - total()) | number }}
+            - $ {{ subtotalOriginal() - total() | number }}
           </strong>
         </div>
 
-        <!-- SUBTOTAL FINAL (con descuento) -->
+        <!-- SUBTOTAL CON DESCUENTO -->
         <div class="linea">
           <span>Subtotal con descuento:</span>
           <strong>$ {{ total() | number }}</strong>
@@ -131,40 +90,38 @@
 
         <hr />
 
-        <!-- FORMULARIO CUPÓN -->
-        <form [formGroup]="cuponForm" (ngSubmit)="aplicarCupon()" class="row g-2">
+        <!-- INPUT CUPÓN -->
+        <div>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="codigoDescuento"
+            placeholder="Ingresa tu cupón"
+          />
+          <small class="text-danger"
+            *ngIf="cuponForm.get('codigoDescuento')?.invalid && cuponForm.get('codigoDescuento')?.touched">
+            Debe tener al menos 4 caracteres.
+          </small>
+        </div>
 
-          <div class="col-12">
-            <input 
-              type="text"
-              formControlName="codigoDescuento"
-              class="form-control"
-              placeholder="Ingresa tu cupón"
-            />
-            <small class="text-danger"
-              *ngIf="
-                cuponForm.get('codigoDescuento')?.invalid &&
-                cuponForm.get('codigoDescuento')?.dirty
-              ">
-              Debe tener al menos 4 caracteres.
-            </small>
-          </div>
-
+        <!-- BOTONES -->
+        <div class="row g-2 mt-1">
           <div class="col-6">
-            <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+            <button class="btn btn-primary w-100" type="submit" [disabled]="cuponForm.invalid">
+              Aplicar
+            </button>
           </div>
-
           <div class="col-6">
-            <button type="button" class="btn btn-secondary w-100" (click)="limpiarCupon()">
+            <button class="btn btn-secondary w-100" type="button" (click)="limpiarCupon()">
               Limpiar
             </button>
           </div>
+        </div>
 
-          <div *ngIf="mensajeCupon" class="alert alert-info mt-2">
-            {{ mensajeCupon }}
-          </div>
-
-        </form>
+        <!-- MENSAJE DEL CUPÓN -->
+        <div *ngIf="mensajeCupon" class="alert alert-info mt-2">
+          {{ mensajeCupon }}
+        </div>
 
         <hr />
 
@@ -174,11 +131,12 @@
           <strong>$ {{ totalFinal() | number }}</strong>
         </div>
 
-        <button class="btn-vaciar mt-2" (click)="limpiarCarrito()">
+        <!-- VACIAR -->
+        <button class="btn-vaciar" type="button" (click)="limpiarCarrito()">
           Vaciar carrito
         </button>
 
-      </div>
+      </form>
     </div>
 
   </div>

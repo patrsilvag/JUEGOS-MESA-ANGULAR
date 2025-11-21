@@ -14,25 +14,31 @@ import { Cart, CartItem } from '../../core/cart';
 export class CarritoComponent implements OnInit {
   carritoLista: CartItem[] = [];
 
+  // Reactive Form
   cuponForm!: FormGroup;
   mensajeCupon: string | null = null;
 
   constructor(public cart: Cart, private fb: FormBuilder) {}
 
   ngOnInit() {
-    // Formulario reactivo
+    /** Inicializa formulario reactivo */
     this.cuponForm = this.fb.group({
       codigoDescuento: ['', [Validators.required, Validators.minLength(4)]],
     });
 
-    // Subscribirse al carrito
+    /** Escucha cambios del carrito */
     this.cart.carrito$.subscribe((items: CartItem[]) => {
       this.carritoLista = items ?? [];
     });
   }
 
+  // ===================================================
+  //  CUPÓN
+  // ===================================================
+
   aplicarCupon() {
     if (this.cuponForm.invalid) {
+      this.cuponForm.markAllAsTouched();
       this.mensajeCupon = 'Código inválido o demasiado corto.';
       return;
     }
@@ -47,14 +53,14 @@ export class CarritoComponent implements OnInit {
     }
   }
 
-  subtotalOriginal() {
-    return this.carritoLista.reduce((sum, p) => sum + p.cantidad * p.precio, 0);
-  }
-
   limpiarCupon() {
     this.cuponForm.reset();
     this.mensajeCupon = null;
   }
+
+  // ===================================================
+  //  MANEJO DEL CARRITO
+  // ===================================================
 
   sumar(id: string) {
     this.cart.sumar(id);
@@ -70,6 +76,15 @@ export class CarritoComponent implements OnInit {
 
   limpiarCarrito() {
     this.cart.limpiar();
+    this.limpiarCupon();
+  }
+
+  // ===================================================
+  //  CÁLCULOS
+  // ===================================================
+
+  subtotalOriginal() {
+    return this.carritoLista.reduce((sum, p) => sum + p.cantidad * p.precio, 0);
   }
 
   total() {

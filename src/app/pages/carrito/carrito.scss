@@ -1,159 +1,210 @@
-/* ============================
-   MOBILE CARDS
-============================ */
-.item-card {
-  background: #fff;
+.carrito-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===================================== */
+/*   ITEM – MOBILE FIRST (CARD STYLE)    */
+/* ===================================== */
+.carrito-item {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #e6e6e6;
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border: 1px solid #eee;
+  background: #fff;
+  transition: background 0.2s ease-in-out;
 }
 
-.item-header {
+/* PRODUCTO */
+.col-producto {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 1rem;
-
-  img {
-    width: 64px;
-    height: 64px;
-    border-radius: 6px;
-    object-fit: cover;
-  }
-
-  h5 {
-    margin: 0;
-    font-weight: 600;
-  }
+  gap: 14px;
 }
 
-.item-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-
-  .label {
-    font-weight: 600;
-    color: #0d6efd;
-  }
-
-  .value {
-    font-weight: 500;
-  }
-}
-
-.cantidad-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  button {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #f8f8f8;
-    font-weight: bold;
-  }
-
-  span {
-    min-width: 20px;
-    text-align: center;
-    font-weight: 600;
-  }
-}
-
-.btn-eliminar {
-  width: 100%;
-  margin-top: 6px;
-  border: none;
+.col-producto img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
   border-radius: 8px;
-  padding: 10px;
-  background: #dc3545;
-  color: #fff;
+  border: 1px solid #ddd;
+}
+
+.nombre {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* PRECIO Y SUBTOTAL */
+.col-precio,
+.col-subtotal {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* CANTIDAD CONTROLS */
+.col-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.col-cantidad button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.col-cantidad span {
+  min-width: 24px;
+  text-align: center;
   font-weight: 600;
 }
 
-/* ============================
-   TABLET / DESKTOP TABLE
-============================ */
+/* ACCIONES */
+.col-acciones {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.btn-eliminar {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ===================================== */
+/*   DESKTOP – TABLE STYLE (CSS GRID)    */
+/* ===================================== */
 @media (min-width: 768px) {
-  .tabla-scroll {
-    width: 100%;
-    max-height: 360px;    /* scroll vertical */
-    overflow-y: auto;
-    overflow-x: hidden;   /* sin scroll horizontal feo */
-    border-radius: 12px;
-  }
-
-  .tabla-scroll table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  thead th {
-    position: sticky;
-    top: 0;
-    background: #222;
-    color: #fff;
-    padding: 12px;
-    z-index: 2;
-  }
-
-  tbody td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    vertical-align: middle;
-  }
-
-  .producto-col {
-    display: flex;
+  .carrito-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
     align-items: center;
-    gap: 10px;
+    padding: 18px 20px;
+    border-radius: 10px;
+  }
 
-    img {
-      width: 48px;
-      height: 48px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
+  .carrito-item:hover {
+    background: #f9f9f9;
+  }
+
+  .col-producto img {
+    width: 58px;
+    height: 58px;
+    border-radius: 6px;
+  }
+
+  .col-acciones {
+    justify-content: center;
+  }
+
+  .col-precio,
+  .col-subtotal {
+    text-align: right;
+  }
+
+  .col-cantidad {
+    justify-content: center;
   }
 }
 
-/* ============================
-   RESUMEN
-============================ */
+/* ===================================== */
+/*                RESUMEN                */
+/* ===================================== */
 .resumen-box {
   background: #fff;
-  border-radius: 12px;
   padding: 1.5rem;
+  border-radius: 12px;
   border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  h3 {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
+.resumen-box h3 {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .linea {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
 }
 
 .total-final {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 4px;
 }
 
 .btn-vaciar {
   width: 100%;
-  margin-top: 1rem;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  border: none;
   background: #dc3545;
-  color: #fff;
+  border: none;
+  color: white;
   font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* FORMULARIO CUPÓN */
+.resumen-box input.form-control.ng-invalid.ng-touched {
+  border-color: #dc3545;
+}
+
+.resumen-box small.text-danger {
+  font-size: 0.8rem;
+}
+
+/* ===================================== */
+/*       SCROLL SOLO EN DESKTOP          */
+/* ===================================== */
+
+@media (min-width: 768px) {
+  .carrito-lista {
+    max-height: 380px; /* Ajustable */
+    overflow-y: auto;
+    padding-right: 6px; /* evita que tape contenido */
+  }
+
+  /* barra de scroll más elegante */
+  .carrito-lista::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .carrito-lista::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .carrito-lista::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+  }
+
+  .carrito-lista::-webkit-scrollbar-thumb:hover {
+    
+    background: #999;
+  }
 }
