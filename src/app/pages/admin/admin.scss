@@ -1,107 +1,91 @@
-// IMPORTA form-base 
-@use '../../styles/form-base.scss';
-
-// ========================================
-//  WRAPPER PRINCIPAL (ancho reducido)
-// ========================================
+// =====================================================
+//  WRAPPER PRINCIPAL
+// =====================================================
 .admin-wrapper {
-  max-width: 900px;     // <= Personalizable
-  margin: 0 auto;       // Centrado horizontal
-  padding: 1rem;        // Espaciado mobile-first
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
 
   @media (min-width: 992px) {
-    max-width: 850px;   // Un poco más estrecho en desktop grande
+    max-width: 850px;
   }
 }
 
-// ========================================
-//  TITULO Y CONTENEDOR
-// ========================================
-.admin-container {
-  h1 {
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-  }
+// =====================================================
+//  TITULOS
+// =====================================================
+.admin-container h1 {
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 }
 
-// ========================================
-//  TABLA RESPONSIVE MOBILE FIRST
-// ========================================
-#tabla-usuarios {
-  width: 100%;
+// =====================================================
+//  FORMULARIO REACTIVO
+// =====================================================
 
-  // Móvil: tabla en formato "cards"
-  thead {
-    display: none;
-  }
+// Estados de error visuales
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: #dc3545;
+}
 
-  tr {
-    display: block;
-    border: 1px solid #e3e3e3;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    background: #fff;
-  }
+// Mensajes de error
+small.text-danger {
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 2px;
+}
 
-  td {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.35rem 0;
+// Contenedor del estado del formulario
+.form-state-box {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
 
-    &::before {
-      content: attr(data-label);
-      font-weight: 600;
-      margin-right: 1rem;
-      color: #555;
-      flex-shrink: 0;
-    }
-  }
+// =====================================================
+//  TABLA RESPONSIVE — OPCIÓN A (Bootstrap estándar)
+// =====================================================
 
-  // Desktop: tabla tradicional
-  @media (min-width: 768px) {
-    thead {
-      display: table-header-group;
-    }
+// Scroll horizontal SOLO en pantallas pequeñas
+@media (max-width: 767px) {
+  .table-responsive-mobile {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
 
-    tr {
-      display: table-row;
-      border: none;
-      border-radius: 0;
-      margin-bottom: 0;
-      padding: 0;
-    }
-
-    td,
-    th {
-      display: table-cell;
-      padding: 0.75rem;
-      vertical-align: middle;
-      border-bottom: 1px solid #ececec;
-    }
-
-    td::before {
-      content: none;
-    }
-
-    tbody tr:hover {
-      background: #fafafa;
+    table {
+      min-width: 600px;
     }
   }
 }
 
-// ========================================
+// Desktop mantiene tabla normal
+@media (min-width: 768px) {
+  .table-responsive-mobile table {
+    min-width: 100%;
+  }
+}
+
+// Hover desktop
+tbody tr:hover {
+  background: #fafafa;
+}
+
+// =====================================================
 //  BADGES
-// ========================================
+// =====================================================
 .badge {
   padding: 0.4rem 0.6rem;
   border-radius: 0.4rem;
   font-size: 0.75rem;
 }
 
-// ========================================
+// =====================================================
 //  BOTONES
-// ========================================
+// =====================================================
 button.btn {
   min-width: 110px;
   font-size: 0.8rem;

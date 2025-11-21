@@ -1,65 +1,64 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../core/auth.service';
-import { Usuario } from '../../core/auth';
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, // Necesario para *ngIf y *ngFor
+    ReactiveFormsModule, // Necesario para formGroup, formControlName
+    JsonPipe, // Necesario para | json
+  ],
 })
 export class AdminComponent implements OnInit {
-  usuarios: Usuario[] = [];
-  usuariosFiltrados: Usuario[] = [];
-
   filtroForm!: FormGroup;
+  usuarios: any[] = [];
+  usuariosFiltrados: any[] = [];
   error: string | null = null;
-
-  constructor(private fb: FormBuilder, private auth: AuthService) {}
+  debug = false; // Mostrar estado del formulario solo si está en true
+  
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    // Formulario reactivo
     this.filtroForm = this.fb.group({
       correo: ['', [Validators.email]],
       rol: [''],
       estado: [''],
     });
 
-    // Cargar usuarios
-    this.usuarios = this.auth.listarUsuarios();
+    this.filtroForm.valueChanges.subscribe(() => this.filtrar());
 
-    this.usuariosFiltrados = [...this.usuarios];
-
-    // Detectar cambios del formulario
-    this.filtroForm.valueChanges.subscribe(() => this.aplicarFiltro());
+    this.cargarUsuarios();
   }
 
-  aplicarFiltro() {
+  cargarUsuarios() {
+    this.usuarios = [
+      { correo: 'admin@site.com', usuario: 'Admin', rol: 'admin', status: 'active' },
+      { correo: 'user@site.com', usuario: 'User', rol: 'cliente', status: 'inactive' },
+    ];
+    this.usuariosFiltrados = [...this.usuarios];
+  }
+
+  filtrar() {
     const { correo, rol, estado } = this.filtroForm.value;
 
-    this.usuariosFiltrados = this.usuarios.filter((u) => {
-      return (
-        (!correo || u.correo.includes(correo)) &&
-        (!rol || u.rol === rol) &&
-        (!estado || u.status === estado)
-      );
-    });
+    this.usuariosFiltrados = this.usuarios.filter(
+      (u) =>
+        (correo ? u.correo.includes(correo) : true) &&
+        (rol ? u.rol === rol : true) &&
+        (estado ? u.status === estado : true)
+    );
   }
 
-  toggleEstado(u: Usuario) {
-    const nuevoEstado = u.status === 'active' ? 'inactive' : 'active';
+  resetFiltro() {
+    this.filtroForm.reset();
+  }
 
-    const ok = this.auth.actualizarEstado(u.correo, nuevoEstado);
-
-    if (!ok) {
-      this.error = 'No se pudo actualizar el estado.';
-      return;
-    }
-
-    u.status = nuevoEstado;
-    this.aplicarFiltro(); // Para actualizar la vista según el filtro
+  toggleEstado(u: any) {
+    u.status = u.status === 'active' ? 'inactive' : 'active';
+    this.filtrar();
   }
 }
