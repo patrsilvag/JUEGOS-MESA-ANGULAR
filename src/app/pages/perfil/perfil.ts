@@ -11,6 +11,8 @@ import {
 import { ValidatorsService } from '../../core/validators.service';
 import { UserService } from '../../core/user.service';
 import { AuthService } from '../../core/auth.service';
+import { AuthErrorService } from '../../core/auth-error.service';
+import { Usuario } from '../../core/auth';
 
 @Component({
   selector: 'app-perfil',
@@ -20,7 +22,7 @@ import { AuthService } from '../../core/auth.service';
   imports: [CommonModule, ReactiveFormsModule],
 })
 export class PerfilComponent implements OnInit {
-  usuario: any = null;
+  usuario!: Usuario | null;
   mensajeExito = false;
 
   verActual = false;
@@ -34,22 +36,25 @@ export class PerfilComponent implements OnInit {
     private fb: FormBuilder,
     private validators: ValidatorsService,
     private userSrv: UserService,
-    private authSrv: AuthService
+    private authSrv: AuthService,
+    private err: AuthErrorService
   ) {}
 
   ngOnInit(): void {
     this.usuario = this.authSrv.getUsuarioActual();
 
-    // FORMULARIO DE DATOS
+    if (!this.usuario) return;
+
+    // FORM DATOS
     this.formDatos = this.fb.group({
-      nombre: [this.usuario?.nombre ?? '', Validators.required],
-      usuario: [this.usuario?.usuario ?? '', Validators.required],
-      correo: [{ value: this.usuario?.correo ?? '', disabled: true }],
-      fechaNacimiento: [this.usuario?.fechaNacimiento ?? '', Validators.required],
-      direccion: [this.usuario?.direccion ?? ''],
+      nombre: [this.usuario.nombre, Validators.required],
+      usuario: [this.usuario.usuario, Validators.required],
+      correo: [{ value: this.usuario.correo, disabled: true }],
+      fechaNacimiento: [this.usuario.fechaNacimiento, Validators.required],
+      direccion: [this.usuario.direccion ?? ''],
     });
 
-    // FORMULARIO DE CLAVES
+    // FORM CLAVE
     this.formClave = this.fb.group(
       {
         claveActual: ['', Validators.required],
@@ -88,18 +93,22 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    const data = {
-      ...this.usuario,
+    const data: Usuario = {
+      ...this.usuario!,
       ...this.formDatos.getRawValue(),
     };
 
     const ok = this.userSrv.actualizarPerfil(data);
 
-    if (ok) {
-      this.usuario = data;
-      this.mensajeExito = true;
-      setTimeout(() => (this.mensajeExito = false), 2500);
+    if (!ok) {
+      // Error inesperado
+      alert(this.err.errorInesperado());
+      return;
     }
+
+    this.usuario = data;
+    this.mensajeExito = true;
+    setTimeout(() => (this.mensajeExito = false), 2500);
   }
 
   // ==============================================
@@ -111,22 +120,21 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    // Validar clave actual desde UserService
+    // Validar clave actual
     const esCorrecta = this.userSrv.validarClaveActual(
       this.usuario!.correo,
       this.formClave.value.claveActual
     );
 
     if (!esCorrecta) {
-      this.formClave.setErrors({ incorrecta: true });
+      this.formClave.setErrors({ incorrecta: this.err.claveIncorrecta() });
       return;
     }
 
-    // Cambiar clave
     const ok = this.userSrv.cambiarClave(this.usuario!.correo, this.formClave.value.nuevaClave);
 
     if (!ok) {
-      this.formClave.setErrors({ error: true });
+      this.formClave.setErrors({ error: this.err.errorInesperado() });
       return;
     }
 
