@@ -36,13 +36,16 @@ export class RegistroComponent {
           [
             Validators.required,
             Validators.minLength(6),
+            Validators.maxLength(18),
             this.uppercaseValidator(),
             this.numberValidator(),
-            this.specialValidator(),
           ],
         ],
         repetirClave: ['', Validators.required],
-        fechaNacimiento: ['', Validators.required],
+        fechaNacimiento: [
+          '',
+          [Validators.required, this.fechaFuturaValidator(), this.edadMinimaValidator(13)],
+        ],
         direccion: [''],
       },
       { validators: this.coincidenClaves() }
@@ -68,6 +71,43 @@ export class RegistroComponent {
     return (group: AbstractControl) =>
       group.get('clave')?.value === group.get('repetirClave')?.value ? null : { noCoinciden: true };
   }
+
+  fechaFuturaValidator() {
+    return (control: AbstractControl) => {
+      const valor = control.value;
+      if (!valor) return null; // si está vacío, otra validación se encarga
+
+      const fecha = new Date(valor);
+      const hoy = new Date();
+
+      // Normalizar horas para comparación exacta
+      hoy.setHours(0, 0, 0, 0);
+      fecha.setHours(0, 0, 0, 0);
+
+      return fecha > hoy ? { fechaFutura: true } : null;
+    };
+  }
+
+  edadMinimaValidator(minEdad: number) {
+    return (control: AbstractControl) => {
+      const valor = control.value;
+      if (!valor) return null;
+
+      const fechaNacimiento = new Date(valor);
+      const hoy = new Date();
+
+      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+      const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+
+      // Ajustar si aún no ha cumplido años este año
+      if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+        edad--;
+      }
+
+      return edad < minEdad ? { edadMinima: true } : null;
+    };
+  }
+
 
   limpiar() {
     this.form.reset();

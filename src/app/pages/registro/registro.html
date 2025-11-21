@@ -43,9 +43,9 @@
     <!-- REGLAS -->
     <div class="reglas" *ngIf="campo('clave').touched">
       <span [class.ok]="!campo('clave').errors?.['minlength']">Mín. 6</span>
+      <span [class.ok]="!campo('clave').errors?.['maxlength']">Máx. 18</span>
       <span [class.ok]="!campo('clave').errors?.['uppercase']">Mayúscula</span>
       <span [class.ok]="!campo('clave').errors?.['number']">Número</span>
-      <span [class.ok]="!campo('clave').errors?.['special']">Especial</span>
     </div>
 
     <!-- REPETIR CLAVE -->
@@ -67,17 +67,21 @@
     <label>Fecha de nacimiento:</label>
     <input type="date" formControlName="fechaNacimiento" class="form-control" />
     <small
-      *ngIf="campo('fechaNacimiento').touched && campo('fechaNacimiento').errors?.['required']"
+      *ngIf="
+        campo('fechaNacimiento').errors &&
+        (campo('fechaNacimiento').dirty || campo('fechaNacimiento').touched)
+      "
       class="error"
     >
-      La fecha es obligatoria.
-    </small>
-
-    <small
-      *ngIf="campo('fechaNacimiento').touched && campo('fechaNacimiento').errors?.['fechaFutura']"
-      class="error"
-    >
-      La fecha no puede ser futura.
+      <span *ngIf="campo('fechaNacimiento').errors?.['required']">
+         La fecha es obligatoria. 
+      </span>
+      <span *ngIf="campo('fechaNacimiento').errors?.['fechaFutura']">
+        La fecha no puede ser futura.
+      </span>
+      <span *ngIf="campo('fechaNacimiento').errors?.['edadMinima']">
+        Debes tener al menos 13 años.
+      </span>
     </small>
 
     <!-- DIRECCIÓN -->
