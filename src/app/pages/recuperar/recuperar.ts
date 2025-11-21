@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  FormGroup,
+  AbstractControl,
+} from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
@@ -30,14 +36,65 @@ export class RecuperarComponent {
     });
 
     this.formCodigo = this.fb.group({
-      codigo: ['', Validators.required],
+      codigo: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[0-9]+$/), // solo números
+          Validators.minLength(6), // mínimo 6 dígitos
+          Validators.maxLength(6), // máximo 6 dígitos
+        ],
+      ],
     });
 
-    this.formClave = this.fb.group({
-      clave: ['', [Validators.required, Validators.minLength(6)]],
-      clave2: ['', Validators.required],
-    });
+    this.formClave = this.fb.group(
+      {
+        clave: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(18),
+            this.uppercaseValidator(),
+            this.numberValidator(),
+          ],
+        ],
+        clave2: ['', Validators.required],
+      },
+      { validators: this.coincidenClaves() }
+    );
+ }
+  
+
+  // =======================
+  //  VALIDADORES PERSONALIZADOS
+  // =======================
+
+  uppercaseValidator() {
+    return (control: AbstractControl) => {
+      const value = control.value || '';
+      return /[A-Z]/.test(value) ? null : { uppercase: true };
+    };
   }
+
+  numberValidator() {
+    return (control: AbstractControl) => {
+      const value = control.value || '';
+      return /[0-9]/.test(value) ? null : { number: true };
+    };
+  }
+
+  coincidenClaves() {
+    return (group: AbstractControl) => {
+      const c1 = group.get('clave')?.value;
+      const c2 = group.get('clave2')?.value;
+      return c1 === c2 ? null : { noCoinciden: true };
+    };
+  }
+
+   // =======================
+  //  PASO 1
+  // =======================
 
   enviarCorreo() {
     if (this.formCorreo.invalid) return this.formCorreo.markAllAsTouched();
@@ -46,7 +103,7 @@ export class RecuperarComponent {
     const user = this.auth.buscarPorCorreo(correo);
 
     if (!user) {
-      this.formCorreo.setErrors({ noExiste: true });
+      this.formCorreo.get('correo')?.setErrors({ noExiste: true });
       return;
     }
 
