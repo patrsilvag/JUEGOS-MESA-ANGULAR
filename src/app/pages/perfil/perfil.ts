@@ -50,7 +50,13 @@ export class PerfilComponent implements OnInit {
       nombre: [this.usuario.nombre, Validators.required],
       usuario: [this.usuario.usuario, Validators.required],
       correo: [{ value: this.usuario.correo, disabled: true }],
-      fechaNacimiento: [this.usuario.fechaNacimiento, Validators.required],
+      fechaNacimiento: [ this.usuario.fechaNacimiento,
+      [
+        Validators.required,
+        this.validators.edadMinimaValidator(13),
+        this.validators.fechaFuturaValidator(),
+      ],
+      ],
       direccion: [this.usuario.direccion ?? ''],
     });
 

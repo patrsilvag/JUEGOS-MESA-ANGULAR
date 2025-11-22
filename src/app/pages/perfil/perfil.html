@@ -1,14 +1,16 @@
 <section class="form-container">
-
   <h2 class="form-title">Mi Perfil</h2>
 
   <!-- ==========================
        DATOS PERSONALES
   =========================== -->
-  <form *ngIf="formDatos" [formGroup]="formDatos" (ngSubmit)="guardarDatos()" novalidate>
+  <!-- ✅ *ngIf en el MISMO form que usa [formGroup] -->
+  <form *ngIf="formDatos"
+        [formGroup]="formDatos"
+        (ngSubmit)="guardarDatos()"
+        novalidate>
 
     <div class="grid-2">
-
       <!-- NOMBRE -->
       <div class="form-group">
         <label>Nombre completo:</label>
@@ -26,41 +28,49 @@
       <!-- USUARIO -->
       <div class="form-group">
         <label>Nombre de usuario:</label>
-        <input
-          type="text"
-          class="form-control"
-          formControlName="usuario"
-        />
+        <input type="text" class="form-control" formControlName="usuario" />
         <small *ngIf="fcDatos('usuario').touched && fcDatos('usuario').invalid" class="error">
           Este campo es obligatorio.
         </small>
       </div>
 
-      <!-- CORREO (deshabilitado correctamente desde TS, sin atributo boolean string) -->
+      <!-- CORREO -->
       <div class="form-group">
         <label>Correo electrónico:</label>
-        <input
-          type="email"
-          class="form-control"
-          formControlName="correo"
-        />
+        <input type="email" class="form-control" formControlName="correo" />
       </div>
 
       <!-- FECHA NACIMIENTO -->
       <div class="form-group">
         <label>Fecha de nacimiento:</label>
-        <input
-          type="date"
-          class="form-control"
-          formControlName="fechaNacimiento"
-        />
-        <small *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').invalid"
-               class="error">
+        <input type="date" class="form-control" formControlName="fechaNacimiento" />
+
+        <!-- required -->
+        <small
+          *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').errors?.['required']"
+          class="error"
+        >
           Este campo es obligatorio.
+        </small>
+
+        <!-- edad mínima -->
+        <small
+          *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').errors?.['edadMinima']"
+          class="error"
+        >
+          Debes tener al menos 13 años.
+        </small>
+
+        <!-- fecha futura -->
+        <small
+          *ngIf="fcDatos('fechaNacimiento').touched && fcDatos('fechaNacimiento').errors?.['fechaFutura']"
+          class="error"
+        >
+          La fecha no puede ser futura.
         </small>
       </div>
 
-      <!-- DIRECCIÓN (ancho completo) -->
+      <!-- DIRECCIÓN -->
       <div class="form-group full">
         <label>Dirección:</label>
         <input
@@ -70,7 +80,6 @@
           placeholder="Ej: Av. Siempre Viva 123"
         />
       </div>
-
     </div>
 
     <button type="submit" class="btn-primary mt-3">Guardar cambios</button>
@@ -85,12 +94,15 @@
   <!-- ==========================
        CAMBIAR CONTRASEÑA
   =========================== -->
-  <h3 class="form-title" style="font-size: 1.3rem;">Cambiar contraseña</h3>
+  <h3 class="form-title" style="font-size: 1.3rem">Cambiar contraseña</h3>
 
-  <form *ngIf="formClave" [formGroup]="formClave" (ngSubmit)="actualizarClave()" novalidate>
+  <!-- ✅ *ngIf en el MISMO form que usa [formGroup] -->
+  <form *ngIf="formClave"
+        [formGroup]="formClave"
+        (ngSubmit)="actualizarClave()"
+        novalidate>
 
     <div class="grid-2">
-
       <!-- CLAVE ACTUAL -->
       <div class="form-group">
         <label>Contraseña actual:</label>
@@ -102,7 +114,10 @@
           />
           <button type="button" class="btn-ojo" (click)="verActual = !verActual">👁️</button>
         </div>
-        <small *ngIf="fcClave('claveActual').touched && fcClave('claveActual').invalid" class="error">
+        <small
+          *ngIf="fcClave('claveActual').touched && fcClave('claveActual').invalid"
+          class="error"
+        >
           Debes ingresar tu contraseña actual.
         </small>
       </div>
@@ -142,11 +157,13 @@
           Las contraseñas no coinciden.
         </small>
       </div>
-
     </div>
 
     <button type="submit" class="btn-primary mt-3">Actualizar contraseña</button>
-
   </form>
 
+  <!-- ✅ fallback si no hay forms -->
+  <div *ngIf="!formDatos || !formClave" class="alert alert-warning text-center mt-3">
+    No hay un usuario activo. Inicia sesión para ver tu perfil.
+  </div>
 </section>
