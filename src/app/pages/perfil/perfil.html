@@ -5,7 +5,7 @@
   <!-- ==========================
        DATOS PERSONALES
   =========================== -->
-  <form [formGroup]="formDatos" (ngSubmit)="guardarDatos()" novalidate>
+  <form *ngIf="formDatos" [formGroup]="formDatos" (ngSubmit)="guardarDatos()" novalidate>
 
     <div class="grid-2">
 
@@ -87,7 +87,7 @@
   =========================== -->
   <h3 class="form-title" style="font-size: 1.3rem;">Cambiar contraseña</h3>
 
-  <form [formGroup]="formClave" (ngSubmit)="actualizarClave()" novalidate>
+  <form *ngIf="formClave" [formGroup]="formClave" (ngSubmit)="actualizarClave()" novalidate>
 
     <div class="grid-2">
 
