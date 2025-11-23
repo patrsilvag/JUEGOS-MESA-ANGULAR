@@ -7,20 +7,47 @@ import { AuthService } from '../../core/auth.service';
 import { AuthErrorService } from '../../core/auth-error.service';
 import { Usuario } from '../../core/auth';
 
-/** Fake de ValidatorsService (misma lógica que el real) */
+/** Fake de ValidatorsService alineado con PerfilComponent */
 class FakeValidatorsService {
   uppercaseValidator(): ValidatorFn {
     return (c: AbstractControl): ValidationErrors | null =>
       /[A-Z]/.test(c.value || '') ? null : { uppercase: true };
   }
+
   numberValidator(): ValidatorFn {
     return (c: AbstractControl): ValidationErrors | null =>
       /\d/.test(c.value || '') ? null : { number: true };
   }
+
   specialValidator(): ValidatorFn {
     return (c: AbstractControl): ValidationErrors | null =>
       /[^A-Za-z0-9]/.test(c.value || '') ? null : { special: true };
   }
+
+  fechaFuturaValidator(): ValidatorFn {
+    return (c: AbstractControl): ValidationErrors | null => {
+      if (!c.value) return null;
+      const input = new Date(c.value);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      return input > hoy ? { fechaFutura: true } : null;
+    };
+  }
+
+  edadMinimaValidator(min: number): ValidatorFn {
+    return (c: AbstractControl): ValidationErrors | null => {
+      if (!c.value) return null;
+      const nacimiento = new Date(c.value);
+      const hoy = new Date();
+
+      let edad = hoy.getFullYear() - nacimiento.getFullYear();
+      const m = hoy.getMonth() - nacimiento.getMonth();
+      if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+
+      return edad < min ? { edadMinima: true } : null;
+    };
+  }
+
   coincidenClaves(c1: string, c2: string): ValidatorFn {
     return (group: AbstractControl): ValidationErrors | null => {
       const fg = group as FormGroup;
@@ -63,6 +90,7 @@ describe('PerfilComponent (Angular 20)', () => {
     ]);
 
     authSpy.getUsuarioActual.and.returnValue(usuarioMock);
+
     userSpy.actualizarPerfil.and.returnValue(true);
     userSpy.validarClaveActual.and.returnValue(true);
     userSpy.cambiarClave.and.returnValue(true);
@@ -92,28 +120,26 @@ describe('PerfilComponent (Angular 20)', () => {
     expect(component.usuario).toEqual(usuarioMock);
     expect(component.formDatos).toBeTruthy();
     expect(component.formClave).toBeTruthy();
-
-    // correo deshabilitado
     expect(component.formDatos.get('correo')?.disabled).toBeTrue();
   });
 
-  it('si no hay usuario actual, no debe construir formularios', async () => {
+  it('si no hay usuario actual, no debe construir formularios', () => {
     authSpy.getUsuarioActual.and.returnValue(null);
 
-    const fx = TestBed.createComponent(PerfilComponent);
-    const cmp = fx.componentInstance;
-    fx.detectChanges();
+    fixture = TestBed.createComponent(PerfilComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
 
-    expect(cmp.usuario).toBeNull();
-    expect(cmp.formDatos).toBeUndefined();
-    expect(cmp.formClave).toBeUndefined();
+    expect(component.usuario).toBeNull();
+    expect(component.formDatos).toBeUndefined();
+    expect(component.formClave).toBeUndefined();
   });
 
   // ==========================
   // guardarDatos()
   // ==========================
   it('guardarDatos() no debe llamar actualizarPerfil si formDatos inválido', () => {
-    component.formDatos.patchValue({ nombre: '' }); // required
+    component.formDatos.patchValue({ nombre: '' });
     component.guardarDatos();
 
     expect(userSpy.actualizarPerfil).not.toHaveBeenCalled();
@@ -124,7 +150,7 @@ describe('PerfilComponent (Angular 20)', () => {
     component.formDatos.setValue({
       nombre: 'Nuevo Nombre',
       usuario: 'nuevoUser',
-      correo: usuarioMock.correo, // está disabled, pero setValue lo incluye
+      correo: usuarioMock.correo,
       fechaNacimiento: '1999-12-31',
       direccion: 'Nueva dir',
     });
@@ -133,7 +159,7 @@ describe('PerfilComponent (Angular 20)', () => {
 
     const esperado: Usuario = {
       ...usuarioMock,
-      ...component.formDatos.getRawValue(), // incluye correo disabled
+      ...component.formDatos.getRawValue(),
     };
 
     expect(userSpy.actualizarPerfil).toHaveBeenCalledWith(esperado);
@@ -200,7 +226,7 @@ describe('PerfilComponent (Angular 20)', () => {
 
     component.actualizarClave();
 
-    expect(userSpy.validarClaveActual).toHaveBeenCalled();
+    expect(userSpy.validarClaveActual).toHaveBeenCalledWith('test@mail.com', 'A123456!');
     expect(userSpy.cambiarClave).toHaveBeenCalledWith('test@mail.com', 'B123456!');
     expect(component.formClave.errors).toEqual({ error: 'errorInesperado' });
   });
