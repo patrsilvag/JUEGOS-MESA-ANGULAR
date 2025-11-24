@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Usuario } from './auth';
-import { AuthRepository } from './auth.repository';
 import { AuthErrorService } from './auth-error.service';
+import { environment } from '../../environments/environment';
 
 export type LoginResultado = { ok: true; usuario: Usuario } | { ok: false; mensaje: string };
 
@@ -11,7 +12,9 @@ export class AuthService {
   private usuarioActual = new BehaviorSubject<Usuario | null>(null);
   usuarioActual$ = this.usuarioActual.asObservable();
 
-  constructor(private repo: AuthRepository, private err: AuthErrorService) {
+  private baseUrl = `${environment.apiUrl}/usuarios`;
+
+  constructor(private http: HttpClient, private err: AuthErrorService) {
     this.cargarUsuarioActual();
   }
 
@@ -33,14 +36,17 @@ export class AuthService {
     return this.usuarioActual.value;
   }
 
+  // ✅ login clásico en memoria (por ahora)
   login(correo: string, clave: string): LoginResultado {
     try {
       const email = correo.trim().toLowerCase();
       const pass = clave.trim();
 
-      const usuario = this.repo.login(email, pass);
+      // ⚠️ Temporal: usuario hardcoded (remplazar con lógica real si aplica)
+      const raw = localStorage.getItem('usuarioActual');
+      const usuario: Usuario | null = raw ? JSON.parse(raw) : null;
 
-      if (!usuario) {
+      if (!usuario || usuario.correo !== email || usuario.clave !== pass) {
         return { ok: false, mensaje: this.err.credencialesInvalidas() };
       }
 
@@ -50,6 +56,25 @@ export class AuthService {
       console.error('Error en AuthService.login():', error);
       return { ok: false, mensaje: this.err.errorInesperado() };
     }
+  }
+
+  // ✅ login con backend
+  loginApi(correo: string, clave: string): Observable<LoginResultado> {
+    const body = { correo: correo.trim().toLowerCase(), clave: clave.trim() };
+
+    return this.http.post<Usuario>(`${this.baseUrl}/login`, body).pipe(
+      map((usuario): LoginResultado => {
+        this.guardarSesion(usuario);
+        return { ok: true, usuario };
+      }),
+      catchError((err): Observable<LoginResultado> => {
+        let msg = this.err.errorInesperado();
+        if (err.status === 401) {
+          msg = this.err.credencialesInvalidas();
+        }
+        return of({ ok: false, mensaje: msg });
+      })
+    );
   }
 
   logout() {

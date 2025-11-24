@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService, LoginResultado } from '../../core/auth.service';
+import { AuthService } from '../../core/auth.service';
 import { AuthErrorService } from '../../core/auth-error.service';
 
 @Component({
@@ -16,6 +16,9 @@ export class LoginComponent {
   form!: FormGroup;
   verClave = false;
   errorLogin = '';
+
+  // Cambiar a true para usar login contra el backend
+  usarApi = true;
 
   constructor(
     private fb: FormBuilder,
@@ -37,14 +40,31 @@ export class LoginComponent {
     if (this.form.invalid) return;
 
     const { correo, clave } = this.form.value;
+    this.errorLogin = '';
 
-    const resultado: LoginResultado = this.authSrv.login(correo, clave);
-
-    if (!resultado.ok) {
-      this.errorLogin = resultado.mensaje;
-      return;
+    if (this.usarApi) {
+      // Login contra backend
+      this.authSrv.loginApi(correo, clave).subscribe({
+        next: (resultado) => {
+          if (resultado.ok) {
+            this.router.navigate(['/']);
+          } else {
+            this.errorLogin = resultado.mensaje;
+          }
+        },
+        error: (e) => {
+          console.error(e);
+          this.errorLogin = this.err.errorInesperado();
+        },
+      });
+    } else {
+      // Login local (in-memory)
+      const resultado = this.authSrv.login(correo, clave);
+      if (resultado.ok) {
+        this.router.navigate(['/']);
+      } else {
+        this.errorLogin = resultado.mensaje;
+      }
     }
-
-    this.router.navigate(['/']);
   }
 }

@@ -19,4 +19,6 @@ export class UserApiService {
   getByCorreo(correo: string): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.baseUrl}/${encodeURIComponent(correo)}`);
   }
+
+  
 }
