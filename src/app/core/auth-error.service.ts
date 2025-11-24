@@ -13,6 +13,11 @@ export class AuthErrorService {
     return 'No existe una cuenta registrada con este correo.';
   }
 
+  // ✅ correo ya registrado
+  usuarioYaExiste(): string {
+    return 'Ya existe una cuenta registrada con este correo.';
+  }
+
   claveIncorrecta(): string {
     return 'La contraseña actual no es correcta.';
   }
@@ -55,7 +60,8 @@ export class AuthErrorService {
 
       case 'CAMPOS_INVALIDOS':
         return this.camposInvalidos();
-
+      case 'USUARIO_YA_EXISTE':
+        return this.usuarioYaExiste();
       default:
         return this.errorInesperado();
     }

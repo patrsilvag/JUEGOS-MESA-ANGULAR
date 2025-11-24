@@ -3,9 +3,8 @@ export interface Usuario {
   usuario: string;
   correo: string;
   fechaNacimiento: string;
-  direccion?: string;
+  direccion?: string | null;
   clave: string;
   rol: 'admin' | 'cliente';
-  status?: 'active' | 'inactive'; /** Indicador de si el usuario está activo o desactivado */
+  status?: 'active' | 'inactive' /** Indicador de si el usuario está activo o desactivado */;
 }
-

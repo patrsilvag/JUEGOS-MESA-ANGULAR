@@ -1,16 +1,29 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Usuario } from './auth';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
+import { UserApiService } from './user-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  constructor(private repo: AuthRepository, private authSrv: AuthService) {}
+  constructor(
+    private repo: AuthRepository,
+    private authSrv: AuthService,
+    private api: UserApiService
+  ) {}
 
+  // ✅ Registro viejo (localStorage) - NO tocar todavía
   registrarUsuario(data: Usuario): boolean {
     return this.repo.registrar(data);
   }
 
+  // ✅ Registro nuevo (backend)
+  registrarUsuarioApi(data: Usuario): Observable<Usuario> {
+    return this.api.registrar(data);
+  }
+
+  // resto sin cambios
   actualizarPerfil(data: Usuario): boolean {
     const ok = this.repo.actualizar(data);
     if (ok) {
@@ -28,6 +41,7 @@ export class UserService {
     const user = lista.find((u: Usuario) => u.correo === correo);
     return user?.clave === clave;
   }
+
   buscarPorCorreo(correo: string): Usuario | null {
     const lista = JSON.parse(localStorage.getItem('usuarios') ?? '[]');
     return lista.find((u: Usuario) => u.correo === correo) ?? null;

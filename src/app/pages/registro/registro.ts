@@ -27,6 +27,9 @@ export class RegistroComponent implements OnInit {
   verClave = false;
   verClave2 = false;
 
+  // ✅ mensaje de error centralizado (texto viene de AuthErrorService)
+  errorMsg = '';
+
   constructor(
     private fb: FormBuilder,
     private validators: ValidatorsService,
@@ -48,7 +51,6 @@ export class RegistroComponent implements OnInit {
             Validators.maxLength(18),
             this.validators.uppercaseValidator(),
             this.validators.numberValidator(),
-            this.validators.specialValidator(),
           ],
         ],
         repetirClave: ['', Validators.required],
@@ -66,6 +68,20 @@ export class RegistroComponent implements OnInit {
         validators: this.validators.coincidenClaves('clave', 'repetirClave'),
       }
     );
+    // ✅ Limpia mensaje global cuando el usuario edita el formulario
+    this.form.valueChanges.subscribe(() => {
+      this.errorMsg = '';
+    });
+
+    // ✅ Limpia el error "existe" apenas cambia el correo
+    this.campo('correo').valueChanges.subscribe(() => {
+      const correoCtrl = this.campo('correo');
+      if (correoCtrl.hasError('existe')) {
+        const errors = { ...correoCtrl.errors };
+        delete errors['existe'];
+        correoCtrl.setErrors(Object.keys(errors).length ? errors : null);
+      }
+    });
   }
 
   campo(nombre: string): AbstractControl {
@@ -74,6 +90,8 @@ export class RegistroComponent implements OnInit {
 
   limpiar() {
     this.form.reset();
+    this.errorMsg = '';
+    this.mensajeExito = false;
   }
 
   submit() {
@@ -88,21 +106,35 @@ export class RegistroComponent implements OnInit {
       correo: this.form.value.correo!,
       clave: this.form.value.clave!,
       fechaNacimiento: this.form.value.fechaNacimiento!,
-      direccion: this.form.value.direccion ?? '',
+      direccion: this.form.value.direccion ?? null, // ✅ nullable
       rol: 'cliente',
+      status: 'active', // ✅ backend alineado a front
     };
 
-    const ok = this.userSrv.registrarUsuario(data);
+    this.errorMsg = '';
+    this.mensajeExito = false;
 
-    if (!ok) {
-      // correo ya existe
-      this.form.get('correo')?.setErrors({ existe: true });
-      return;
-    }
+    // ✅ llamar backend (no localStorage)
+    this.userSrv.registrarUsuarioApi(data).subscribe({
+      next: () => {
+        this.mensajeExito = true;
+        this.form.reset();
+        setTimeout(() => (this.mensajeExito = false), 2500);
+      },
+      error: (e) => {
+        let code = 'ERROR_INESPERADO';
 
-    this.mensajeExito = true;
-    this.form.reset();
+        if (e?.status === 409) {
+          // correo duplicado (si backend lo implementa)
+          this.form.get('correo')?.setErrors({ existe: true });
+          code = 'USUARIO_YA_EXISTE';
+        } else if (e?.status === 400) {
+          code = 'CAMPOS_INVALIDOS';
+        }
 
-    setTimeout(() => (this.mensajeExito = false), 2500);
+        this.errorMsg = this.err.getMensaje(code);
+        console.error(e);
+      },
+    });
   }
 }
